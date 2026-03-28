@@ -1,7 +1,6 @@
--- // WNDS HUB v5.4 - WIND UI STABLE
--- // Developer: Raize (WNDS)
+-- // WNDS HUB v5.4 - WIND UI ALL-IN-ONE
+-- // Pastikan nama file di GitHub: main.lua
 
--- Link Alternatif WindUI yang lebih stabil
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/Source.lua"))()
 
 local Window = WindUI:CreateWindow({
@@ -32,11 +31,6 @@ TabCombat:AddToggle({
     Default = false,
     Callback = function(v) _G.Aimbot = v end
 })
-TabCombat:AddSlider({
-    Title = "FOV Radius",
-    Min = 10, Max = 500, Default = 100,
-    Callback = function(v) _G.FOV = v end
-})
 
 -- // --- TAB: PLAYER ---
 local TabPlayer = Window:AddTab({ Title = "Player", Icon = "user" })
@@ -53,14 +47,6 @@ TabPlayer:AddToggle({
     Callback = function(v) _G.InfJump = v end
 })
 
--- // --- TAB: VISUALS ---
-local TabVisual = Window:AddTab({ Title = "Visuals", Icon = "eye" })
-TabVisual:AddToggle({
-    Title = "ESP Player",
-    Default = false,
-    Callback = function(v) _G.ESP = v end
-})
-
 -- // --- TAB: SETTINGS ---
 local TabSettings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 TabSettings:AddButton({
@@ -73,11 +59,11 @@ TabSettings:AddButton({
 -- // LOGIKA INFINITE JUMP
 game:GetService("UserInputService").JumpRequest:Connect(function()
     if _G.InfJump then
-        game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+        pcall(function()
+            game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+        end)
     end
 end)
 
--- // SETTING KEYBIND (PC)
+-- // SETTING KEYBIND (PC) & MOBILE BUTTON
 Window:SetKeybind(Enum.KeyCode.RightControl)
-
-print("✅ [WNDS]: Script Fully Loaded!")
