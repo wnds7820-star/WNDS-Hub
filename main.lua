@@ -1,36 +1,32 @@
--- 1. Tentukan pangkalan link RAW kamu di sini (PASTIKAN ADA "/" DI AKHIR)
-local base_url = "https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/"
+-- // WNDS HUB v5.4 - MASTER LOADER
+-- // Gunakan link RAW agar Roblox bisa membaca kodenya
 
--- 2. Fungsi SafeLoad akan otomatis menggabungkan base_url dengan nama filenya
-local function SafeLoad(file)
-    local s, content = pcall(function() 
-        return game:HttpGet(base_url .. file) 
-    end)
-    
+local function SafeLoad(url)
+    local s, content = pcall(function() return game:HttpGet(url) end)
     if s and content then
         local func, err = loadstring(content)
-        if func then 
-            return func() 
-        else 
-            warn("WNDS Error: Gagal membaca kode di " .. file .. " | " .. tostring(err))
-        end
+        if func then return func() else warn("Error: " .. url .. " | " .. tostring(err)) end
     else
-        warn("WNDS Error: File tidak ditemukan di link RAW: " .. file)
+        warn("Gagal mengambil file (Pastikan link RAW benar): " .. url)
     end
 end
 
--- 3. Proses Loading (Semua ini otomatis ketarik dari link RAW)
-task.spawn(function() SafeLoad("loader_intro.lua") end)
+-- 1. Jalankan Intro (Pake link RAW)
+task.spawn(function() 
+    SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/loader_intro.lua") 
+end)
+
 task.wait(4.5)
 
-_G.WNDS_Data = SafeLoad("info_data.lua")
-_G.WNDS_UI = SafeLoad("ui_config.lua")
+-- 2. Ambil Data & UI (Pake link RAW)
+_G.WNDS_Data = SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/info_data.lua")
+_G.WNDS_UI = SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/ui_config.lua")
 
--- Memanggil file fitur per tab dari link RAW
-SafeLoad("tab_combat.lua")
-SafeLoad("tab_visuals.lua")
-SafeLoad("tab_player.lua")
-SafeLoad("tab_teleport.lua")
-SafeLoad("tab_settings.lua")
+-- 3. Panggil Semua Tab (Semuanya pake link RAW)
+SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_combat.lua")
+SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_visuals.lua")
+SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_player.lua")
+SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_teleport.lua")
+SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_settings.lua")
 
-print("WNDS Hub: Berhasil dijalankan menggunakan jalur RAW!")
+print("WNDS Hub: Semua modul berhasil ditarik dari link RAW!")
