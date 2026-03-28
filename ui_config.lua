@@ -61,12 +61,12 @@ local function LoadModule(inputName)
 end
 
 -- // 3. PANGGIL MODUL DENGAN LINK LENGKAP (Sesuai Permintaanmu)
-LoadModule("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_info.lua")
-LoadModule("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_combat.lua")
-LoadModule("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_player.lua")
-LoadModule("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_visuals.lua")
-LoadModule("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_teleport.lua")
-LoadModule("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_settings.lua")
+LoadModule("raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_info.lua")
+LoadModule("raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_combat.lua")
+LoadModule("raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_player.lua")
+LoadModule("raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_visuals.lua")
+LoadModule("raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_teleport.lua")
+LoadModule("raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_settings.lua")
 
 -- // 4. FLOATING BUTTON MOBILE
 if isMobile then
