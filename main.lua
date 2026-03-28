@@ -8,7 +8,7 @@ loadstring(game:HttpGet(base_url .. "https://github.com/wnds7820-star/WNDS-Hub/b
 task.wait(4.5)
 
 -- 2. Load Data Detection (Info Akun/Server)
-_G.WNDS_Data = loadstring(game:HttpGet(base_url .. "info_data.lua"))()
+_G.WNDS_Data = loadstring(game:HttpGet(base_url .. "https://github.com/wnds7820-star/WNDS-Hub/blob/main/info_data.lua"))()
 
 -- 3. Load UI & Tabs
 _G.WNDS_UI = loadstring(game:HttpGet(base_url .. "ui_config.lua"))()
