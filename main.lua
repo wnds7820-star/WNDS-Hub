@@ -1,133 +1,83 @@
--- // WNDS HUB v5.4 - WIND UI EDITION
+-- // WNDS HUB v5.4 - WIND UI STABLE
 -- // Developer: Raize (WNDS)
 
-local WindUI = loadstring(game:HttpGet("https://treehouse.overdrive.id/WindUI/main.lua"))()
+-- Link Alternatif WindUI yang lebih stabil
+local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/Source.lua"))()
+
 local Window = WindUI:CreateWindow({
     Title = "WNDS Hub v5.4",
-    Icon = "rbxassetid://10723343321", -- Icon Gear/Settings
+    Icon = "rbxassetid://10723343321",
     Author = "by Raize",
-    Folder = "WNDS_Configs" -- Tempat simpan config otomatis
+    Folder = "WNDS_Configs"
 })
 
--- // NOTIFICATION
+-- // NOTIFIKASI STARTUP
 WindUI:Notify({
-    Title = "WNDS Hub Loaded",
-    Content = "Welcome back, " .. game.Players.LocalPlayer.DisplayName .. "!",
+    Title = "WNDS Hub",
+    Content = "Successfully Loaded! Hello, " .. game.Players.LocalPlayer.DisplayName,
     Duration = 5
 })
 
 -- // --- TAB: INFO ---
 local TabInfo = Window:AddTab({ Title = "Info", Icon = "info" })
-
 TabInfo:AddParagraph({
-    Title = "User Dashboard",
-    Desc = "Status: Premium User\nDevice: " .. (game:GetService("UserInputService").TouchEnabled and "Mobile" or "PC")
-})
-
-TabInfo:AddButton({
-    Title = "Join Discord",
-    Desc = "Copy Discord link to clipboard",
-    Callback = function()
-        setclipboard("https://discord.gg/wndshub")
-    end
+    Title = "User Profile",
+    Desc = "Name: " .. game.Players.LocalPlayer.Name .. "\nID: " .. game.Players.LocalPlayer.UserId
 })
 
 -- // --- TAB: COMBAT ---
 local TabCombat = Window:AddTab({ Title = "Combat", Icon = "sword" })
-
 TabCombat:AddToggle({
-    Title = "Silent Aim",
-    Desc = "Automatically targets closest player",
+    Title = "Aimbot",
     Default = false,
-    Callback = function(v) _G.SilentAim = v end
+    Callback = function(v) _G.Aimbot = v end
 })
-
 TabCombat:AddSlider({
-    Title = "Aimbot FOV",
-    Min = 50, Max = 800, Default = 100,
+    Title = "FOV Radius",
+    Min = 10, Max = 500, Default = 100,
     Callback = function(v) _G.FOV = v end
 })
 
-local combatFeatures = {"No Recoil", "No Spread", "Infinite Ammo", "Kill Aura", "Hitbox Expander"}
-for _, name in pairs(combatFeatures) do
-    TabCombat:AddToggle({ Title = name, Default = false, Callback = function(s) print(name .. ": " .. tostring(s)) end })
-end
-
 -- // --- TAB: PLAYER ---
 local TabPlayer = Window:AddTab({ Title = "Player", Icon = "user" })
-
 TabPlayer:AddSlider({
     Title = "WalkSpeed",
-    Min = 16, Max = 500, Default = 16,
-    Callback = function(v) game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v end
+    Min = 16, Max = 300, Default = 16,
+    Callback = function(v) 
+        pcall(function() game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v end) 
+    end
 })
-
-TabPlayer:AddSlider({
-    Title = "JumpPower",
-    Min = 50, Max = 500, Default = 50,
-    Callback = function(v) game.Players.LocalPlayer.Character.Humanoid.JumpPower = v end
+TabPlayer:AddToggle({
+    Title = "Infinite Jump",
+    Default = false,
+    Callback = function(v) _G.InfJump = v end
 })
-
-local playerMods = {"Infinite Jump", "Fly Mode", "Noclip", "God Mode", "Anti-Fling", "Spin Bot"}
-for _, name in pairs(playerMods) do
-    TabPlayer:AddToggle({ Title = name, Default = false, Callback = function(s) print(name .. ": " .. tostring(s)) end })
-end
 
 -- // --- TAB: VISUALS ---
 local TabVisual = Window:AddTab({ Title = "Visuals", Icon = "eye" })
-
 TabVisual:AddToggle({
-    Title = "Player ESP",
+    Title = "ESP Player",
     Default = false,
     Callback = function(v) _G.ESP = v end
 })
 
-TabVisual:AddToggle({
-    Title = "Chams (Wallhack)",
-    Default = false,
-    Callback = function(v) _G.Chams = v end
-})
-
-TabVisual:AddToggle({
-    Title = "Full Bright",
-    Default = false,
-    Callback = function(v) game.Lighting.Brightness = v and 2 or 1 end
-})
-
 -- // --- TAB: SETTINGS ---
 local TabSettings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-
 TabSettings:AddButton({
-    Title = "Reload Script",
+    Title = "Rejoin Server",
     Callback = function()
-        Window:Close()
-        task.wait(0.5)
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/main.lua"))()
+        game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
     end
 })
 
-TabSettings:AddToggle({
-    Title = "Anti-AFK",
-    Default = true,
-    Callback = function(v) print("Anti-AFK: " .. tostring(v)) end
-})
+-- // LOGIKA INFINITE JUMP
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if _G.InfJump then
+        game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+    end
+end)
 
--- // KEYBIND UNTUK BUKA/TUTUP (PC)
+-- // SETTING KEYBIND (PC)
 Window:SetKeybind(Enum.KeyCode.RightControl)
 
--- // FLOATING BUTTON (MOBILE)
-if game:GetService("UserInputService").TouchEnabled then
-    local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
-    local Button = Instance.new("ImageButton", ScreenGui)
-    local UICorner = Instance.new("UICorner", Button)
-    
-    Button.Size = UDim2.new(0, 50, 0, 50)
-    Button.Position = UDim2.new(0, 10, 0.5, 0)
-    Button.Image = "rbxassetid://10723343321" -- Icon Gear
-    Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    UICorner.CornerRadius = UDim.new(0, 15)
-    
-    Button.MouseButton1Click:Connect(function()
-        Window:Toggle()
-    end)
-end
+print("✅ [WNDS]: Script Fully Loaded!")
