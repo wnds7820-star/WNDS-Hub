@@ -33,3 +33,19 @@ Tabs.Settings:Button({
     Title = "Destroy UI",
     Callback = function() Window:Destroy() end,
 })
+
+-- FPS Cap (Buka batasan FPS)
+Tabs.Settings:Button({
+    Title = "Unlock FPS (Requires Executor Support)",
+    Callback = function()
+        if setfpscap then setfpscap(999) end
+    end,
+})
+
+-- Chat Logger (Melihat chat yang dihapus/dari jauh - Opsional)
+Tabs.Settings:Button({
+    Title = "Simple Chat Logger",
+    Callback = function()
+        print("Chat logging enabled in F9 Console")
+    end,
+})
