@@ -1,52 +1,54 @@
--- // WNDS HUB - MOBILE FLOATING BUTTON (SMOOTH DRAG)
+local Fluent = _G.Fluent -- Mengambil library dari main.lua
+
+-- // 1. DETEKSI PERANGKAT (BIAR GAK KEBESARAN DI HP)
 local UserInputService = game:GetService("UserInputService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
+local isMobile = (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+local windowSize = isMobile and UDim2.fromOffset(450, 320) or UDim2.fromOffset(580, 460)
 
-local function CreateFloatingButton()
-    local ScreenGui = Instance.new("ScreenGui")
-    local Button = Instance.new("TextButton")
-    local UICorner = Instance.new("UICorner")
-    local UIGradient = Instance.new("UIGradient")
+-- // 2. BUAT WINDOW
+local Window = Fluent:CreateWindow({
+    Title = "WNDS Hub v5.4",
+    SubTitle = "by Raize",
+    TabWidth = isMobile and 125 or 160,
+    Size = windowSize,
+    Acrylic = true, 
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.RightControl 
+})
 
-    ScreenGui.Name = "WNDS_MobileToggle"
-    ScreenGui.Parent = game:GetService("CoreGui")
-    ScreenGui.ResetOnSpawn = false
+-- // 3. DEFINISIKAN TAB (Penting: Harus urut!)
+local Tabs = {
+    Info = Window:AddTab({ Title = "Info", Icon = "info" }),
+    Combat = Window:AddTab({ Title = "Combat", Icon = "sword" }),
+    Player = Window:AddTab({ Title = "Player", Icon = "user" }),
+    Visuals = Window:AddTab({ Title = "Visuals", Icon = "eye" }),
+    Teleport = Window:AddTab({ Title = "Teleport", Icon = "map" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
 
-    Button.Name = "ToggleButton"
-    Button.Parent = ScreenGui
-    Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    Button.BorderSizePixel = 0
-    Button.Position = UDim2.new(0.1, 0, 0.15, 0)
-    Button.Size = UDim2.new(0, 50, 0, 50)
-    Button.Font = Enum.Font.GothamBold
-    Button.Text = "W"
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.TextSize = 24
-    Button.Active = true
-    Button.Draggable = true -- Aktifkan fitur seret
+-- // 4. DAFTARKAN KE GLOBAL (Biar file tab_combat dll bisa baca 'Tabs')
+_G.WNDS_UI = {
+    Window = Window,
+    Tabs = Tabs
+}
 
-    UICorner.CornerRadius = UDim.new(0, 15) -- Lebih bulat biar estetik
-    UICorner.Parent = Button
-
-    UIGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 117, 242)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 58, 121))
-    }
-    UIGradient.Parent = Button
-
-    -- Logika Klik (Buka/Tutup Menu)
-    Button.MouseButton1Click:Connect(function()
-        -- Simulasi tekan RightControl
-        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.RightControl, false, game)
-        
-        -- Animasi klik kecil
-        Button:TweenSize(UDim2.new(0, 45, 0, 45), "Out", "Quad", 0.1, true)
-        task.wait(0.1)
-        Button:TweenSize(UDim2.new(0, 50, 0, 50), "Out", "Quad", 0.1, true)
+-- // 5. PANGGIL SEMUA MODULE (SafeLoad)
+local function SafeLoad(url)
+    local success, result = pcall(function()
+        return loadstring(game:HttpGet(url))()
     end)
+    if not success then
+        warn("WNDS Error Loading: " .. url .. " | Error: " .. tostring(result))
+    end
 end
 
--- Deteksi HP/Mobile
-if UserInputService.TouchEnabled then
-    CreateFloatingButton()
-end
+-- Panggil satu-satu sesuai file di GitHub kamu
+SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_info.lua")
+SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_combat.lua")
+SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_player.lua")
+SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_visuals.lua")
+SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_teleport.lua")
+SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_settings.lua")
+
+-- // 6. FLOATING BUTTON (Hanya untuk Mobile)
+-- (Paste kode Floating Button yang kemarin di sini jika ingin ada tombol "W")
