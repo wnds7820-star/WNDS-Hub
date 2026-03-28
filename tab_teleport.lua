@@ -1,7 +1,6 @@
 local Tabs = _G.WNDS_UI.Tabs
-Tabs.Teleport:Section({ Title = "Locations" })
-
-local Locs = {"Spawn", "Shop", "Farm Zone", "Quest NPC", "Boss Arena", "PVP Zone", "Safe Zone", "Hidden Room", "Event Area", "Lobby"}
-for _, v in pairs(Locs) do
-    Tabs.Teleport:Button({ Title = "TP to " .. v, Callback = function() print("Teleporting to " .. v) end })
+Tabs.Teleport:Section({ Title = "Quick TP" })
+local tp = {"Spawn", "Shop", "Farm Area", "PVP Arena"}
+for _, v in pairs(tp) do
+    Tabs.Teleport:Button({ Title = "TP to " .. v, Callback = function() print("Teleporting...") end })
 end
