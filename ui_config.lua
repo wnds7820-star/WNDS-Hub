@@ -2,7 +2,6 @@ local Fluent = _G.Fluent
 local UserInputService = game:GetService("UserInputService")
 local isMobile = (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
 
--- // 1. BUAT WINDOW
 local Window = Fluent:CreateWindow({
     Title = "WNDS Hub v5.4",
     SubTitle = "by Raize",
@@ -13,7 +12,6 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.RightControl 
 })
 
--- // 2. DEFINISIKAN SEMUA TAB
 local Tabs = {
     Info = Window:AddTab({ Title = "Info", Icon = "info" }),
     Combat = Window:AddTab({ Title = "Combat", Icon = "sword" }),
@@ -23,42 +21,32 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
--- Simpan ke Global agar file tab_... bisa baca 'Tabs'
 _G.WNDS_UI = { Window = Window, Tabs = Tabs }
 
--- // 3. FUNGSI AMAN UNTUK PANGGIL FILE (SafeLoad)
 local function SafeLoad(url)
     local success, result = pcall(function()
-        return loadstring(game:HttpGet(url))()
+        return loadstring(game:HttpGet(url .. "?t=" .. tostring(math.random(1,100))))()
     end)
-    if not success then warn("WNDS Gagal Load: " .. url) end
+    if not success then warn("Gagal Load: " .. url) end
 end
 
--- // 4. TEMPAT PANGGIL SEMUA ISI TAB (SUDAH SAYA RAPIKAN)
--- Info dipanggil pertama supaya langsung muncul pas script dibuka
-SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_info.lua") 
-
--- Sisanya dipanggil berurutan
-SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_info.lua") 
+-- // PANGGIL SEMUA TAB (PASTIKAN NAMA FILE DI GITHUB SUDAH BENAR)
+SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_info.lua")
 SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_combat.lua")
 SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_visuals.lua")
 SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_player.lua")
 SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_teleport.lua")
 SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_settings.lua")
 
--- // 5. TOMBOL MOBILE (Floating Button)
+-- Floating Button Mobile
 if UserInputService.TouchEnabled then
     local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
     local Button = Instance.new("TextButton", ScreenGui)
     local UICorner = Instance.new("UICorner", Button)
-    ScreenGui.Name = "WNDSToggle"
-    ScreenGui.ResetOnSpawn = false
-    Button.Size = UDim2.new(0, 50, 0, 50)
-    Button.Position = UDim2.new(0, 10, 0.5, 0)
-    Button.BackgroundColor3 = Color3.fromRGB(120, 117, 242)
-    Button.Text = "W"
-    Button.TextColor3 = Color3.new(1,1,1)
-    Button.Draggable = true
+    ScreenGui.Name = "WNDSToggle"; ScreenGui.ResetOnSpawn = false
+    Button.Size, Button.Position = UDim2.new(0, 50, 0, 50), UDim2.new(0, 10, 0.5, 0)
+    Button.BackgroundColor3, Button.Text = Color3.fromRGB(120, 117, 242), "W"
+    Button.TextColor3, Button.Draggable = Color3.new(1,1,1), true
     UICorner.CornerRadius = UDim.new(0, 15)
     Button.MouseButton1Click:Connect(function()
         game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.RightControl, false, game)
