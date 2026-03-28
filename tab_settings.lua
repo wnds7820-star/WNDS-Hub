@@ -1,51 +1,8 @@
--- // WNDS HUB - SETTINGS MODULE (RELOAD UPDATE)
 local Tabs = _G.WNDS_UI.Tabs
-local Window = _G.WNDS_UI.Window
+Tabs.Settings:Section({ Title = "Configuration" })
 
-Tabs.Settings:Section({ Title = "System Control" })
-
--- Fitur Reload Script
-Tabs.Settings:Button({
-    Title = "Reload WNDS Hub",
-    Desc = "Memuat ulang skrip dari GitHub (Gunakan setelah Update)",
-    Callback = function()
-        -- Hapus UI lama agar tidak menumpuk
-        Window:Destroy()
-        
-        -- Jalankan kembali Loader utama (main.lua) menggunakan link RAW
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/main.lua"))()
-        
-        -- Beri notifikasi kecil (opsional)
-        print("WNDS Hub: Reloading...")
-    end,
-})
-
-Tabs.Settings:Section({ Title = "Hub Management" })
-
-Tabs.Settings:Button({
-    Title = "Rejoin Server",
-    Callback = function()
-        game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
-    end,
-})
-
-Tabs.Settings:Button({
-    Title = "Destroy UI",
-    Callback = function() Window:Destroy() end,
-})
-
--- FPS Cap (Buka batasan FPS)
-Tabs.Settings:Button({
-    Title = "Unlock FPS (Requires Executor Support)",
-    Callback = function()
-        if setfpscap then setfpscap(999) end
-    end,
-})
-
--- Chat Logger (Melihat chat yang dihapus/dari jauh - Opsional)
-Tabs.Settings:Button({
-    Title = "Simple Chat Logger",
-    Callback = function()
-        print("Chat logging enabled in F9 Console")
-    end,
-})
+Tabs.Settings:Button({ Title = "Destroy UI", Callback = function() _G.WNDS_UI.Window:Destroy() end })
+local Configs = {"Save Config", "Load Config", "Auto Rejoin", "Server Hop", "Anti-AFK", "Low Graphics", "Rejoin Server", "Hide UI", "Show FPS"}
+for _, v in pairs(Configs) do
+    Tabs.Settings:Toggle({ Title = v, Default = false, Callback = function(v) print(v) end })
+end
