@@ -1,57 +1,52 @@
--- // UPDATE BAGIAN TABS.INFO DI UI_CONFIG.LUA
+-- // WNDS HUB - MOBILE FLOATING BUTTON
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
-Tabs.Info:Section({ Title = "User Dashboard" })
+local function CreateFloatingButton()
+    local ScreenGui = Instance.new("ScreenGui")
+    local Button = Instance.new("TextButton")
+    local UICorner = Instance.new("UICorner")
+    local UIGradient = Instance.new("UIGradient")
 
--- Profil dengan Foto
-local ProfileWidget = Tabs.Info:Paragraph({
-    Title = "Welcome, " .. _G.WNDS_Data.DisplayName .. " (@" .. _G.WNDS_Data.Username .. ")",
-    Desc = "Project: WNDS Hub v5.4\nStatus: Active (Authorized)",
-    Image = _G.WNDS_Data.Avatar,
-    ImageSize = 64
-})
+    ScreenGui.Name = "WNDS_MobileToggle"
+    ScreenGui.Parent = game:GetService("CoreGui")
+    ScreenGui.ResetOnSpawn = false
 
-Tabs.Info:Section({ Title = "Live Server Status" })
+    Button.Name = "ToggleButton"
+    Button.Parent = ScreenGui
+    Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Button.BorderSizePixel = 0
+    Button.Position = UDim2.new(0.1, 0, 0.15, 0) -- Posisi awal
+    Button.Size = UDim2.new(0, 50, 0, 50) -- Ukuran tombol
+    Button.Font = Enum.Font.GothamBold
+    Button.Text = "W" -- Inisial WNDS
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.TextSize = 24
+    Button.Active = true
+    Button.Draggable = true -- Biar bisa digeser-geser di HP
 
--- Label untuk Ping & FPS (Akan diupdate terus)
-local StatsLabel = Tabs.Info:Paragraph({
-    Title = "Performance Metrics",
-    Desc = "Loading stats..."
-})
+    UICorner.CornerRadius = UDim.new(0, 12) -- Bentuk agak kotak membulat (Modern)
+    UICorner.Parent = Button
 
--- Looping Update Stats (Ping & FPS)
-task.spawn(function()
-    while task.wait(1) do
-        local fps = math.floor(1 / game:GetService("RunService").RenderStepped:Wait())
-        local ping = tonumber(string.format("%.0f", game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()))
-        local time = os.date("%H:%M:%S")
+    UIGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 117, 242)), -- Warna khas WNDS
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 58, 121))
+    }
+    UIGradient.Parent = Button
+
+    -- Fungsi Klik untuk Buka/Tutup Menu
+    Button.MouseButton1Click:Connect(function()
+        -- Simulasi menekan tombol RightControl untuk memicu Library Fluent
+        game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.RightControl, false, game)
         
-        StatsLabel:SetDesc(
-            "• Current FPS: " .. fps .. " FPS" ..
-            "\n• Server Ping: " .. ping .. " ms" ..
-            "\n• Local Time: " .. time
-        )
-    end
-end)
+        -- Efek klik (animasi kecil)
+        Button:TweenSize(UDim2.new(0, 45, 0, 45), "Out", "Quad", 0.1, true)
+        task.wait(0.1)
+        Button:TweenSize(UDim2.new(0, 50, 0, 50), "Out", "Quad", 0.1, true)
+    end)
+end
 
-Tabs.Info:Section({ Title = "Game & System Details" })
-
-Tabs.Info:Paragraph({
-    Title = "Environment Info",
-    Desc = "• Game: " .. _G.WNDS_Data.GameName .. 
-           "\n• Place ID: " .. game.PlaceId .. 
-           "\n• Account Age: " .. _G.WNDS_Data.AccountAge .. " Days" ..
-           "\n• Executor: " .. _G.WNDS_Data.Executor ..
-           "\n• Device: " .. _G.WNDS_Data.Platform
-})
-
-Tabs.Info:Section({ Title = "Quick Shortcuts" })
-
-Tabs.Info:Button({
-    Title = "Copy Job ID (Server)",
-    Callback = function() setclipboard(game.JobId) end
-})
-
-Tabs.Info:Button({
-    Title = "Copy Game Link",
-    Callback = function() setclipboard("https://www.roblox.com/games/" .. game.PlaceId) end
-})
+-- Hanya munculkan tombol jika user pakai HP
+if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+    CreateFloatingButton()
+end
