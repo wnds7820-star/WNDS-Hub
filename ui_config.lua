@@ -1,11 +1,17 @@
-local Fluent = _G.Fluent -- Mengambil library dari main.lua
+-- // ui_config.lua
+local Fluent = _G.Fluent
 
--- // 1. DETEKSI PERANGKAT (BIAR GAK KEBESARAN DI HP)
+-- Cek apakah Library sudah ke-load
+if not Fluent then
+    warn("WNDS Hub: Fluent Library not found in Global!")
+    return
+end
+
 local UserInputService = game:GetService("UserInputService")
 local isMobile = (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
 local windowSize = isMobile and UDim2.fromOffset(450, 320) or UDim2.fromOffset(580, 460)
 
--- // 2. BUAT WINDOW
+-- // 1. BUAT WINDOW
 local Window = Fluent:CreateWindow({
     Title = "WNDS Hub v5.4",
     SubTitle = "by Raize",
@@ -16,7 +22,7 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.RightControl 
 })
 
--- // 3. DEFINISIKAN TAB (Penting: Harus urut!)
+-- // 2. DEFINISIKAN TAB
 local Tabs = {
     Info = Window:AddTab({ Title = "Info", Icon = "info" }),
     Combat = Window:AddTab({ Title = "Combat", Icon = "sword" }),
@@ -26,23 +32,23 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
--- // 4. DAFTARKAN KE GLOBAL (Biar file tab_combat dll bisa baca 'Tabs')
+-- Simpan ke Global agar module lain (tab_combat dll) bisa baca
 _G.WNDS_UI = {
     Window = Window,
     Tabs = Tabs
 }
 
--- // 5. PANGGIL SEMUA MODULE (SafeLoad)
+-- // 3. FUNGSI SAFELOAD
 local function SafeLoad(url)
     local success, result = pcall(function()
         return loadstring(game:HttpGet(url))()
     end)
     if not success then
-        warn("WNDS Error Loading: " .. url .. " | Error: " .. tostring(result))
+        warn("WNDS Error: " .. url .. " | " .. tostring(result))
     end
 end
 
--- Panggil satu-satu sesuai file di GitHub kamu
+-- // 4. PANGGIL MODULES (Pastikan Link RAW!)
 SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_info.lua")
 SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_combat.lua")
 SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_player.lua")
@@ -50,5 +56,28 @@ SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_visu
 SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_teleport.lua")
 SafeLoad("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tab_settings.lua")
 
--- // 6. FLOATING BUTTON (Hanya untuk Mobile)
--- (Paste kode Floating Button yang kemarin di sini jika ingin ada tombol "W")
+-- // 5. FLOATING BUTTON UNTUK MOBILE
+if UserInputService.TouchEnabled then
+    local VirtualInputManager = game:GetService("VirtualInputManager")
+    local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+    local Button = Instance.new("TextButton", ScreenGui)
+    local UICorner = Instance.new("UICorner", Button)
+
+    ScreenGui.Name = "WNDS_MobileToggle"
+    ScreenGui.ResetOnSpawn = false
+
+    Button.Size = UDim2.new(0, 50, 0, 50)
+    Button.Position = UDim2.new(0.1, 0, 0.15, 0)
+    Button.BackgroundColor3 = Color3.fromRGB(120, 117, 242)
+    Button.Text = "W"
+    Button.TextColor3 = Color3.new(1,1,1)
+    Button.Draggable = true
+
+    UICorner.CornerRadius = UDim.new(0, 15)
+
+    Button.MouseButton1Click:Connect(function()
+        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.RightControl, false, game)
+        task.wait(0.05)
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.RightControl, false, game)
+    end)
+end
