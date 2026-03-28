@@ -12,9 +12,9 @@ local function LoadTab(url)
 end
 
 -- Panggil semua tab (Pastikan nama file di GitHub SUDAH TANPA SPASI)
-LoadTab("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_info.lua")
-LoadTab("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_combat.lua")
 LoadTab("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_visuals.lua")
-LoadTab("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_player.lua")
 LoadTab("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_teleport.lua")
 LoadTab("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_settings.lua")
+LoadTab("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_player.lua")
+LoadTab("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_info.lua")
+LoadTab("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tab_combat.lua")
