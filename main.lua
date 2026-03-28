@@ -14,6 +14,6 @@ _G.WNDS_Data = loadstring(game:HttpGet(base_url .. "https://github.com/wnds7820-
 _G.WNDS_UI = loadstring(game:HttpGet(base_url .. "ui_config.lua"))()
 
 -- 4. Load Core Functions (Combat, Visual, dll)
-loadstring(game:HttpGet(base_url .. "https://github.com/wnds7820-star/WNDS-Hub/blob/main/ui_config.lua"))()
+loadstring(game:HttpGet(base_url .. "https://github.com/wnds7820-star/WNDS-Hub/blob/main/functions.lua"))()
 
 print("WNDS Hub: All Modules Loaded Successfully!")
