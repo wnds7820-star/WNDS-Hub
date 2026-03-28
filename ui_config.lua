@@ -33,7 +33,7 @@ local function LoadModule(inputName)
     if inputName:find("http") then
         finalUrl = inputName .. "?t=" .. tostring(math.random(1, 1000))
     else
-        finalUrl = "https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/" .. inputName .. "?t=" .. tostring(math.random(1, 1000))
+        finalUrl = "https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/main.lua" .. inputName .. "?t=" .. tostring(math.random(1, 1000))
     end
 
     local s, content = pcall(function() return game:HttpGet(finalUrl) end)
