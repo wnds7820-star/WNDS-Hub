@@ -55,3 +55,34 @@ game:GetService("RunService").Stepped:Connect(function()
         end
     end
 end)
+
+-- 5. Anti-AFK (Biar nggak kena kick kalau diem lama)
+Tabs.Player:Button({
+    Title = "Enable Anti-AFK",
+    Callback = function()
+        local vu = game:GetService("VirtualUser")
+        LocalPlayer.Idled:Connect(function()
+            vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+            task.wait(1)
+            vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        end)
+    end,
+})
+
+-- 6. Gravity Slider (Bisa loncat melayang)
+Tabs.Player:Slider({
+    Title = "Gravity Control",
+    Step = 1, Value = {Min = 0, Max = 196, Default = 196},
+    Callback = function(v) workspace.Gravity = v end,
+})
+
+-- 7. Sit Toggle (Biar nggak bisa jatuh/ragdoll di beberapa game)
+Tabs.Player:Toggle({
+    Title = "Anti-Sit",
+    Callback = function(v) 
+        LocalPlayer.Character.Humanoid.Sit = false
+        LocalPlayer.Character.Humanoid:GetPropertyChangedSignal("Sit"):Connect(function()
+            if v then LocalPlayer.Character.Humanoid.Sit = false end
+        end)
+    end,
+})
