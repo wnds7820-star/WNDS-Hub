@@ -4,7 +4,7 @@
 local base_url = "https://raw.githubusercontent.com/UsernameKamu/RepoKamu/main/"
 
 -- 1. Jalankan Loading Screen (Internal)
-loadstring(game:HttpGet(base_url .. "loader_intro.lua"))() 
+loadstring(game:HttpGet(base_url .. "https://github.com/wnds7820-star/WNDS-Hub/blob/main/loader_intro.lua"))() 
 task.wait(4.5)
 
 -- 2. Load Data Detection (Info Akun/Server)
