@@ -52,3 +52,22 @@ Tabs.Visuals:Toggle({
         end
     end,
 })
+
+-- Field of View (FOV)
+Tabs.Visuals:Slider({
+    Title = "Field of View (FOV)",
+    Step = 1, Value = {Min = 70, Max = 120, Default = 70},
+    Callback = function(v) workspace.CurrentCamera.FieldOfView = v end,
+})
+
+-- No Fog (Menghapus kabut di semua game)
+Tabs.Visuals:Toggle({
+    Title = "Remove Fog",
+    Callback = function(v)
+        if v then
+            game:GetService("Lighting").FogEnd = 999999
+        else
+            game:GetService("Lighting").FogEnd = 1000
+        end
+    end,
+})
