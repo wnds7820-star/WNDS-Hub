@@ -1,7 +1,9 @@
 local Tabs = _G.WNDS_UI.Tabs
-Tabs.Combat:Section({ Title = "Main Combat" })
-
-local Features = {"Aimbot", "Silent Aim", "Wallbang", "Auto Clicker", "Fast Reload", "No Recoil", "No Spread", "Infinite Ammo", "Hitbox Expander", "Kill Aura"}
-for _, v in pairs(Features) do
-    Tabs.Combat:Toggle({ Title = v, Default = false, Callback = function(v) print(v .. " toggled") end })
+Tabs.Combat:Section({ Title = "Aim Assistance" })
+Tabs.Combat:Toggle({ Title = "Aimbot", Default = false, Callback = function(s) _G.Aimbot = s end })
+Tabs.Combat:Toggle({ Title = "Silent Aim", Default = false, Callback = function(s) _G.SilentAim = s end })
+Tabs.Combat:Section({ Title = "Gun Mods" })
+local guns = {"No Recoil", "No Spread", "Infinite Ammo", "Rapid Fire", "Kill Aura"}
+for _, v in pairs(guns) do
+    Tabs.Combat:Toggle({ Title = v, Default = false, Callback = function(s) print(v .. " is " .. tostring(s)) end })
 end
