@@ -1,23 +1,10 @@
-local Tabs = _G.WNDS_UI.Tabs -- WAJIB ADA DI PALING ATAS
+local Tabs = _G.WNDS_UI.Tabs
+Tabs.Player:Section({ Title = "Physical" })
 
-Tabs.Player:Section({ Title = "Movement" })
+Tabs.Player:Slider({ Title = "WalkSpeed", Min = 16, Max = 500, Default = 16, Callback = function(v) game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v end })
+Tabs.Player:Slider({ Title = "JumpPower", Min = 50, Max = 500, Default = 50, Callback = function(v) game.Players.LocalPlayer.Character.Humanoid.JumpPower = v end })
 
-Tabs.Player:Slider({
-    Title = "WalkSpeed",
-    Default = 16,
-    Min = 16,
-    Max = 500,
-    Callback = function(Value)
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
-    end
-})
-
-Tabs.Player:Slider({
-    Title = "JumpPower",
-    Default = 50,
-    Min = 50,
-    Max = 500,
-    Callback = function(Value)
-        game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
-    end
-})
+local Toggles = {"Infinite Jump", "Fly Mode", "No Clip", "God Mode", "Anti-Fling", "Auto Farm", "Spin Bot", "Invisibility"}
+for _, v in pairs(Toggles) do
+    Tabs.Player:Toggle({ Title = v, Default = false, Callback = function(val) print(v .. " is " .. tostring(val)) end })
+end
