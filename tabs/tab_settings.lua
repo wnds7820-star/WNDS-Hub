@@ -4,48 +4,30 @@ local SettingsTab = Window:Tab({
     Border = true,
 })
 
-local UiSection = SettingsTab:Section({ Title = "UI Configuration" })
+-- FITUR RELOAD & TESTER
+local ManageSection = SettingsTab:Section({ Title = "Script Management" })
 
-UiSection:Keybind({
-    Title = "Hide/Show Menu",
-    Value = "RightControl",
-    Callback = function(key)
-        Window:SetToggleKey(Enum.KeyCode[key])
-    end,
-})
-
-UiSection:Button({
-    Title = "Destroy UI",
-    Desc = "Menutup script sepenuhnya",
-    Color = Color3.fromHex("#ff4830"),
-    Callback = function() Window:Destroy() end,
-})
-
-local ConfigSection = SettingsTab:Section({ Title = "Management" })
-
-ConfigSection:Button({
-    Title = "Copy JobId",
-    Callback = function() setclipboard(game.JobId) end,
-})
-
-local ManagementSection = SettingsTab:Section({ Title = "Script Management" })
-
-ManagementSection:Button({
+ManageSection:Button({
     Title = "Reload WNDS Hub",
-    Desc = "Memuat ulang seluruh script dari GitHub",
     Color = Color3.fromHex("#30ff6a"),
     Callback = function()
-        -- Menghapus UI lama agar tidak tumpang tindih
         Window:Destroy()
-        
-        -- Menjalankan ulang loader utama
         task.wait(0.5)
         loadstring(game:HttpGet("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/main.lua"))()
-        
-        WindUI:Notify({
-            Title = "Reloaded!",
-            Content = "Script berhasil diperbarui dari GitHub.",
-            Duration = 3
-        })
     end
+})
+
+ManageSection:Button({
+    Title = "Run Executor Tester",
+    Desc = "Cek kekuatan executor kamu",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/GmilerlolYT/ExecutorTester/refs/heads/main/Hi"))()
+    end
+})
+
+local UiConfig = SettingsTab:Section({ Title = "UI Configuration" })
+UiConfig:Keybind({
+    Title = "Hide/Show Menu",
+    Value = "RightControl",
+    Callback = function(key) Window:SetToggleKey(Enum.KeyCode[key]) end,
 })
