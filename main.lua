@@ -1,13 +1,28 @@
---[[ 
-    WNDS HUB v6.0 - PREMIUM BOOTSTRAPPER
-    Developed by: Raize
-    UI Framework: Fluent
-]]
+-- // WNDS MODULE: PLAYER TAB
+local Window = _G.Window
+local Fluent = _G.Fluent
 
-local Players = game:GetService("Players")
-local HttpService = game:GetService("HttpService")
-local LocalPlayer = Players.LocalPlayer
-local PlayerName = LocalPlayer.DisplayName or LocalPlayer.Name
+if not Window then return end
 
-Window:SelectTab(1)
-print("[WNDS] All modules from /tabs/ have been injected.")
+local PlayerTab = Window:AddTab({ Title = "Player", Icon = "user" })
+
+PlayerTab:AddParagraph({
+    Title = "Movement Control",
+    Content = "User: " .. game.Players.LocalPlayer.Name
+})
+
+_G.WS = 16
+PlayerTab:AddSlider("WS_Slider", {
+    Title = "WalkSpeed",
+    Default = 16, Min = 16, Max = 500, Rounding = 1,
+    Callback = function(v) _G.WS = v end
+})
+
+-- Loop agar WalkSpeed tidak reset
+game:GetService("RunService").RenderStepped:Connect(function()
+    pcall(function()
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.WS
+    end)
+end)
+
+print("[WNDS] Player Tab Loaded Successfully!")
