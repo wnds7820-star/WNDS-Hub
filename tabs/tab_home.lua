@@ -9,12 +9,19 @@ local HomeTab = Window:Tab({
 
 -- SECTION: PROFILE
 local ProfileSection = HomeTab:Section({ Title = "User Dashboard" })
-
 ProfileSection:Paragraph({
     Title = "Welcome, " .. Player.DisplayName,
-    Desc = "Username: @" .. Player.Name .. "\nUser ID: " .. Player.UserId .. "\nAccount Age: " .. Player.AccountAge .. " Days",
+    Desc = "Username: @" .. Player.Name .. "\nUser ID: " .. Player.UserId,
     Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Player.UserId .. "&width=420&height=420&format=png",
     ImageSize = 64,
+})
+
+-- SECTION INFO AKUN (Ditambah Umur Akun)
+local AccInfo = HomeTab:Section({ Title = "Account Details" })
+AccInfo:Paragraph({
+    Title = "Account Age",
+    Desc = Player.AccountAge .. " Days since creation",
+    Icon = "solar:calendar-bold"
 })
 
 -- SECTION: EXECUTOR & SYSTEM
@@ -29,12 +36,12 @@ SysSection:Paragraph({
 
 -- SECTION: QUICK ACTIONS
 local ActionSection = HomeTab:Section({ Title = "Quick Actions" })
-
 ActionSection:Button({
-    Title = "Copy Invite Discord",
+    Title = "Copy Job ID",
+    Desc = "Salin ID Server saat ini",
     Callback = function()
-        setclipboard("https://discord.gg/wndshub")
-        WindUI:Notify({Title = "Success", Content = "Link Copied!"})
+        setclipboard(game.JobId)
+        WindUI:Notify({Title = "Success", Content = "Job ID Copied!"})
     end
 })
 
