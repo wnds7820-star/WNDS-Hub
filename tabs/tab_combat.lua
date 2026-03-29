@@ -1,19 +1,16 @@
 --[[
     WNDS HUB - COMBAT MODULE v6.6
-    Added: Smoothness Logic for Aimbot
+    Features: Smooth Aimbot, FOV, No Master Switch
 ]]
 local CombatTab = _G.WNDS_Window:AddTab({ Title = "Combat", Icon = "target" })
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
+local Mouse = game.Players.LocalPlayer:GetMouse()
 
 _G.WNDS_Aimbot = false
-_G.WNDS_Smoothness = 0.1 -- Default Smoothness
+_G.WNDS_Smoothness = 0.1
 _G.WNDS_FOV_Radius = 150
-
-CombatTab:AddParagraph({ Title = "Aimbot Assistance", Content = "Now with Smooth Motion technology." })
 
 CombatTab:AddToggle("AimLock", {Title = "Enable Aimbot", Default = false}):OnChanged(function(v)
     _G.WNDS_Aimbot = v
@@ -21,8 +18,7 @@ end)
 
 CombatTab:AddSlider("SmoothSlider", {
     Title = "Aimbot Smoothness",
-    Description = "Higher = Smoother/Slower lock",
-    Default = 0.1, Min = 0.01, Max = 1, Rounding = 2, -- Menggunakan 2 desimal
+    Default = 0.1, Min = 0.01, Max = 1, Rounding = 2,
     Callback = function(v) _G.WNDS_Smoothness = v end
 })
 
@@ -32,15 +28,14 @@ CombatTab:AddSlider("FOVSlider", {
     Callback = function(v) _G.WNDS_FOV_Radius = v end
 })
 
--- LOGIKA SMOOTH AIMBOT
 local function GetClosest()
     local target = nil
     local dist = _G.WNDS_FOV_Radius
     for _, p in pairs(Players:GetPlayers()) do
-        if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+        if p ~= game.Players.LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
             local pos, os = Camera:WorldToViewportPoint(p.Character.HumanoidRootPart.Position)
             if os then
-                local mDist = (Vector2.new(game:GetService("Players").LocalPlayer:GetMouse().X, game:GetService("Players").LocalPlayer:GetMouse().Y) - Vector2.new(pos.X, pos.Y)).Magnitude
+                local mDist = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(pos.X, pos.Y)).Magnitude
                 if mDist < dist then
                     dist = mDist
                     target = p
@@ -55,8 +50,8 @@ RunService.RenderStepped:Connect(function()
     if _G.WNDS_Aimbot then
         local target = GetClosest()
         if target then
-            -- LOGIKA SMOOTHING (Lerp)
             local targetPos = CFrame.new(Camera.CFrame.Position, target.Character.HumanoidRootPart.Position)
+            -- Logic Smooth menggunakan Lerp
             Camera.CFrame = Camera.CFrame:Lerp(targetPos, _G.WNDS_Smoothness)
         end
     end
