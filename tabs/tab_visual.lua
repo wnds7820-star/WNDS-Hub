@@ -89,21 +89,19 @@ end
 -- // HITBOX LOOP
 task.spawn(function()
     while task.wait(0.5) do
-        for _,p in pairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                local hrp = p.Character.HumanoidRootPart
-                if _G.WNDS_HEnabled then
-                    hrp.Size = Vector3.new(_G.WNDS_HSize, _G.WNDS_HSize, _G.WNDS_HSize)
+        if _G.WNDS_HEnabled then
+            for _,p in pairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = p.Character.HumanoidRootPart
+                    -- Pastikan WNDS_HSize dikonversi ke number
+                    local s = tonumber(_G.WNDS_HSize) or 2 
+                    hrp.Size = Vector3.new(s, s, s)
                     hrp.Transparency = 0.7
-                    hrp.CanCollide = false
-                else
-                    hrp.Size = Vector3.new(2, 2, 1) -- Ukuran normal Roblox
-                    hrp.Transparency = 1
                 end
             end
         end
     end
-end)
+end))
 
 -- // INITIALIZE
 for _,v in pairs(Players:GetPlayers()) do CreateESP(v) end
