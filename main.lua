@@ -1,33 +1,70 @@
--- WNDS-Hub | Main Loader
-print("Loading WNDS-Hub...")
+-- // WNDS HUB v5.4 - FIX LOAD ERROR
+-- // Developer: Raize
 
-local success, WindUI = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+local WindUI = nil
+
+-- Loop untuk memastikan library beneran ke-load (Anti-Nil)
+local success, result = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/Source.lua"))()
 end)
 
-if not success or not WindUI then
-    error("❌ Gagal memuat WindUI!")
+if success and result then
+    WindUI = result
+else
+    warn("❌ [WNDS]: Gagal mengambil Library UI! Cek koneksi.")
+    return
 end
 
-local function loadModule(path)
-    local url = "https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/" .. path
-    local success, code = pcall(game.HttpGet, game, url)
-    if not success then
-        error("❌ Gagal load: " .. path)
+-- Tunggu sebentar biar library siap di memory
+task.wait(0.5)
+
+-- // START CREATING WINDOW
+local Window = WindUI:CreateWindow({
+    Title = "WNDS Hub v5.4",
+    Icon = "rbxassetid://10723343321",
+    Author = "by Raize",
+    Folder = "WNDS_Configs"
+})
+
+-- // --- TAB: INFO ---
+local TabInfo = Window:AddTab({ Title = "Info", Icon = "info" })
+TabInfo:AddParagraph({
+    Title = "User Profile",
+    Desc = "Welcome back, " .. game.Players.LocalPlayer.DisplayName
+})
+
+-- // --- TAB: COMBAT ---
+local TabCombat = Window:AddTab({ Title = "Combat", Icon = "sword" })
+TabCombat:AddToggle({
+    Title = "Silent Aim",
+    Default = false,
+    Callback = function(v) _G.SilentAim = v end
+})
+
+-- // --- TAB: PLAYER ---
+local TabPlayer = Window:AddTab({ Title = "Player", Icon = "user" })
+TabPlayer:AddSlider({
+    Title = "WalkSpeed",
+    Min = 16, Max = 500, Default = 16,
+    Callback = function(v) 
+        pcall(function() game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v end) 
     end
-    return loadstring(code)()
-end
+})
 
--- Load init
-local Init = loadModule("src/init.lua")
-local Window = Init.Window
+-- // --- TAB: SETTINGS ---
+local TabSettings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+TabSettings:AddButton({
+    Title = "Rejoin Server",
+    Callback = function()
+        game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+    end
+})
 
--- Load semua tab
-loadModule("src/tabs/overview.lua")
-loadModule("src/tabs/player.lua")
-loadModule("src/tabs/movement.lua")
-loadModule("src/tabs/visuals.lua")
-loadModule("src/tabs/combat.lua")
-loadModule("src/tabs/misc.lua")
+-- // NOTIFIKASI SUKSES
+WindUI:Notify({
+    Title = "WNDS Hub",
+    Content = "Script Ready to Use!",
+    Duration = 3
+})
 
-print("✅ WNDS-Hub berhasil dimuat! (Adaptive Mobile/PC)")
+print("✅ [WNDS]: Window Created Successfully!")
