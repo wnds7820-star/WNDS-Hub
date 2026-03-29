@@ -1,5 +1,6 @@
--- // WNDS HUB v6.5.0 - UPDATES & CHANGELOG
+-- // WNDS HUB - OFFICIAL CHANGELOG SYSTEM
 -- // Developer: Raize
+-- // Version: 2.0.0 [LATEST]
 
 local Window = _G.WNDS_Window
 local Fluent = _G.WNDS_Fluent
@@ -13,42 +14,51 @@ local UpdatesTab = Window:AddTab({
 local StatusSec = UpdatesTab:AddSection("System Status")
 
 StatusSec:AddParagraph({
-    Title = "Current Version: v6.5.0 [PREMIUM]",
+    Title = "Current Version: v2.0.0 [PREMIUM]",
     Content = "Status: Online & Undetected\nLast Sync: " .. os.date("%d %B, %Y")
 })
 
--- // SECTION: UPDATE TERBARU (V6.5.0) - PEMBARUAN HARI INI
-local LatestUpdate = UpdatesTab:AddSection("Version: 6.5.0 [LATEST]")
+-- // SECTION: UPDATE TERBARU (V2.0.0) - CURRENT VERSION
+local UpdateV2 = UpdatesTab:AddSection("Version: 2.0.0 [LATEST]")
 
-LatestUpdate:AddParagraph({
-    Title = "Release Date: March 29, 2026",
-    Content = "• Migration: Full transition to Fluent UI Framework.\n" ..
-              "• New Tab: Added 'World' with FPS Booster & Lighting Control.\n" ..
-              "• New Tab: Added 'Misc' with Anti-AFK, Rejoin, & Server Hop.\n" ..
-              "• Logic: Integrated Fluent SaveManager for auto-config saving.\n" ..
-              "• Security: Implemented 3-Tier Bootloader (Bootstrapper > Loader > Main).\n" ..
-              "• Fix: Repositioned & fixed Infinite Jump toggle state (On/Off logic)."
+UpdateV2:AddParagraph({
+    Title = "The Grand Migration (March 29, 2026)",
+    Content = "• Complete UI Overhaul: Migrated to Fluent UI Framework.\n" ..
+              "• Added World Tab: FPS Booster, Lighting & Gravity Control.\n" ..
+              "• Added Misc Tab: Anti-AFK, Rejoin & Server Hop System.\n" ..
+              "• Added Settings Tab: Auto-Config Save/Load (SaveManager).\n" ..
+              "• New Security: 3-Tier Bootloader (Bootstrapper > Loader > Main).\n" ..
+              "• Fix: Infinite Jump Toggle (On/Off Logic)."
 })
 
--- // SECTION: UPDATE SEBELUMNYA (V5.4.0)
-local OldUpdate1 = UpdatesTab:AddSection("Version: 5.4.0")
+-- // SECTION: UPDATE 3 (V1.2.0)
+local UpdateV12 = UpdatesTab:AddSection("Version: 1.2.0")
 
-OldUpdate1:AddParagraph({
-    Title = "Legacy Update",
-    Content = "• Added Fast Rejoin (Cached Server Hop).\n" ..
-              "• Added Executor Tester Tool v1.\n" ..
-              "• Improved Modular Loading System."
+UpdateV12:AddParagraph({
+    Title = "Modular Update",
+    Content = "• Added Modular Loading System (External Scripts).\n" ..
+              "• Added Executor Tester Tool v2.\n" ..
+              "• Added Visuals: Basic ESP Box & Tracers."
 })
 
--- // SECTION: FITUR MENDATANG (ROADMAP)
-local RoadmapSec = UpdatesTab:AddSection("Upcoming Features")
+-- // SECTION: UPDATE 2 (V1.1.0)
+local UpdateV11 = UpdatesTab:AddSection("Version: 1.1.0")
 
-RoadmapSec:AddParagraph({
-    Title = "Rencana v7.0",
-    Content = "• Cloud Config Saving (Database Integration).\n" ..
-              "• Custom Theme Engine (User-defined colors).\n" ..
-              "• Game Specific Tabs (Blox Fruits, Brookhaven, etc)."
+UpdateV11:AddParagraph({
+    Title = "Feature Expansion",
+    Content = "• Added Player Tweaks: WalkSpeed & JumpPower Sliders.\n" ..
+              "• Added Infinite Jump (Beta).\n" ..
+              "• Fixed UI Lag & Optimized Script Execution."
 })
 
--- Memberi tahu user kalau changelog sudah siap
-print("[WNDS HUB] Updates tab successfully loaded with v6.5.0 changelog.")
+-- // SECTION: VERSI AWAL (V1.0.0)
+local UpdateV10 = UpdatesTab:AddSection("Version: 1.0.0")
+
+UpdateV10:AddParagraph({
+    Title = "Initial Release",
+    Content = "• First release of WNDS Hub.\n" ..
+              "• Basic GUI with Main Features.\n" ..
+              "• GitHub Hosting Integration."
+})
+
+print("[WNDS HUB] Changelog v2.0.0 Loaded Successfully.")
