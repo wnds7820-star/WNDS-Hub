@@ -46,8 +46,11 @@ ActionSection:Button({
 })
 
 ActionSection:Button({
-    Title = "Rejoin Server",
+    Title = "Fast Rejoin / Server Hop",
+    Desc = "Pindah server dengan cepat menggunakan Cached Script",
+    Color = Color3.fromHex("#30ff6a"),
     Callback = function()
-        game:GetService("TeleportService"):Teleport(game.PlaceId, Player)
+        WindUI:Notify({Title = "WNDS Hub", Content = "Searching for fastest server..."})
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/Cesare0328/my-scripts/refs/heads/main/CachedServerhop.lua'))()
     end
 })
