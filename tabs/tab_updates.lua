@@ -1,33 +1,45 @@
--- // WNDS HUB v5.4 - UPDATES & CHANGELOG
-local UpdatesTab = Window:Tab({
-    Title = "Updates",
-    Icon = "solar:history-bold",
-    Border = true,
+-- // WNDS HUB v6.5 - UPDATES & CHANGELOG
+-- // Developer: Raize
+
+local Window = _G.WNDS_Window
+local Fluent = _G.WNDS_Fluent
+
+local UpdatesTab = Window:AddTab({ 
+    Title = "Updates", 
+    Icon = "refresh-cw" 
 })
 
--- // UPDATE TERBARU (V5.4.0)
-local LatestUpdate = UpdatesTab:Section({ Title = "Version: 5.4.0 [LATEST]" })
+-- // SECTION: STATUS SISTEM
+local StatusSec = UpdatesTab:AddSection("System Status")
 
-LatestUpdate:Paragraph({
+StatusSec:AddParagraph({
+    Title = "Current Version: v6.5.0 [PREMIUM]",
+    Content = "Status: Online & Undetected\nLast Sync: " .. os.date("%d %B, %Y")
+})
+
+-- // SECTION: UPDATE TERBARU (V6.5.0)
+local LatestUpdate = UpdatesTab:AddSection("Version: 6.5.0 [LATEST]")
+
+LatestUpdate:AddParagraph({
     Title = "Release Date: March 29, 2026",
-    Desc = "• Added Fast Rejoin (Cached Server Hop)\n• Added Executor Tester Tool\n• Fixed ESP Profile Layout\n• Improved Modular Loading System",
-    Icon = "solar:star-bold"
+    Content = "• Migration to Fluent UI (Ultra Modern)\n• Added World & Performance Tab\n• Fixed Infinite Jump Toggle State\n• Improved Global Module Loading System\n• Fixed ESP Profile Layout"
 })
 
--- // UPDATE SEBELUMNYA (V5.3.5)
-local OldUpdate1 = UpdatesTab:Section({ Title = "Version: 5.3.5" })
+-- // SECTION: UPDATE SEBELUMNYA (V5.4.0)
+local OldUpdate1 = UpdatesTab:AddSection("Version: 5.4.0")
 
-OldUpdate1:Paragraph({
-    Title = "Release Date: March 25, 2026",
-    Desc = "• New Glassmorphism UI Theme\n• Optimized Memory Usage\n• Fixed Infinite Jump Toggle",
-    Icon = "solar:reorder-bold"
+OldUpdate1:AddParagraph({
+    Title = "Legacy Update",
+    Content = "• Added Fast Rejoin (Cached Server Hop)\n• Added Executor Tester Tool\n• Improved Modular Loading System"
 })
 
--- // UPDATE SEBELUMNYA (V5.3.0)
-local OldUpdate2 = UpdatesTab:Section({ Title = "Version: 5.3.0" })
+-- // SECTION: FITUR MENDATANG (ROADMAP)
+local RoadmapSec = UpdatesTab:AddSection("Upcoming Features")
 
-OldUpdate2:Paragraph({
-    Title = "Release Date: March 20, 2026",
-    Desc = "• Initial WindUI Integration\n• Added Basic Player Tweaks (Speed/Jump)\n• Implemented GitHub Hosting System",
-    Icon = "solar:check-read-bold"
+RoadmapSec:AddParagraph({
+    Title = "Rencana v7.0",
+    Content = "• Cloud Config Saving\n• Custom Theme Engine\n• More Game Specific Scripts"
 })
+
+-- Memberi tahu user kalau changelog sudah siap
+print("[WNDS HUB] Updates tab successfully loaded.")
