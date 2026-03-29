@@ -18,7 +18,7 @@ local EspSection = VisualTab:Section({ Title = "Extra Sensory Perception" })
 -- Toggle ESP
 EspSection:Toggle({
     Title = "Player ESP",
-    Desc = "Menampilkan kotak di sekitar musuh",
+    Desc = "",
     Callback = function(v)
         _G.EspEnabled = v
     end,
