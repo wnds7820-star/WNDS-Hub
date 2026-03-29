@@ -41,5 +41,6 @@ LoadModule("tab_combat.lua")
 LoadModule("tab_player.lua")
 LoadModule("tab_visual.lua")
 LoadModule("tab_settings.lua")
+LoadModule("tab_misc.lua")
 
 WindUI:Notify({Title = "WNDS Hub", Content = "Modular System Ready!", Duration = 3})
