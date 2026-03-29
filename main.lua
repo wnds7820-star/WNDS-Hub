@@ -7,8 +7,6 @@ local Success = false
 -- Daftar Link Alternatif (Kalau satu mati, pakai yang lain)
 local Links = {
     "https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/Source.lua",
-    "https://treehouse.overdrive.id/WindUI/main.lua" -- Mirror Link
-}
 
 print("🚀 [WNDS]: Menghubungkan ke Library UI...")
 
@@ -38,18 +36,3 @@ local Window = WindUI:CreateWindow({
     Author = "by Raize",
     Folder = "WNDS_Configs"
 })
-
--- TAB INFO
-local TabInfo = Window:AddTab({ Title = "Info", Icon = "info" })
-TabInfo:AddParagraph({ Title = "Dashboard", Desc = "User: " .. game.Players.LocalPlayer.Name })
-
--- TAB PLAYER
-local TabPlayer = Window:AddTab({ Title = "Player", Icon = "user" })
-TabPlayer:AddSlider({
-    Title = "Speed",
-    Min = 16, Max = 300, Default = 16,
-    Callback = function(v) game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v end
-})
-
--- NOTIFIKASI
-WindUI:Notify({ Title = "WNDS Hub", Content = "Script Ready!", Duration = 3 })
