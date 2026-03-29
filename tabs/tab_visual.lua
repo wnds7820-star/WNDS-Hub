@@ -86,22 +86,26 @@ local function CreateESP(P)
     end)
 end
 
--- // HITBOX LOOP - FIXED VERSION (NO CONSOLE SPAM)
+-- // HITBOX LOOP - VERSION 3.0 (SUPER STABLE)
 task.spawn(function()
     while task.wait(0.5) do
-        -- Pastikan variabel global ada dan tipenya benar
         local isEnabled = _G.WNDS_HEnabled
-        local rawSize = _G.WNDS_HSize or 2
-        local safeSize = tonumber(rawSize) or 2 -- Konversi paksa ke angka
+        local rawSize = _G.WNDS_HSize
+        
+        -- Pastikan benar-benar angka murni
+        local safeSize = 2
+        if type(rawSize) == "number" then
+            safeSize = rawSize
+        elseif type(rawSize) == "string" then
+            safeSize = tonumber(rawSize) or 2
+        end
 
         if isEnabled then
             for _, p in pairs(Players:GetPlayers()) do
-                -- Pastikan bukan diri sendiri, karakter ada, dan punya RootPart
                 if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
                     local hrp = p.Character.HumanoidRootPart
-                    
-                    -- Proteksi: Kadang game mengunci properti Size, gunakan pcall agar tidak error ke konsol
                     pcall(function()
+                        -- Gunakan koordinat yang pasti valid
                         hrp.Size = Vector3.new(safeSize, safeSize, safeSize)
                         hrp.Transparency = 0.7
                         hrp.CanCollide = false
@@ -109,13 +113,15 @@ task.spawn(function()
                 end
             end
         else
-            -- Reset Hitbox jika dimatikan
+            -- Reset ke ukuran asli Roblox (Hanya jalan sekali saat dimatikan)
             for _, p in pairs(Players:GetPlayers()) do
                 if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
                     local hrp = p.Character.HumanoidRootPart
                     pcall(function()
-                        hrp.Size = Vector3.new(2, 2, 1) -- Ukuran default Roblox
-                        hrp.Transparency = 1
+                        if hrp.Size ~= Vector3.new(2, 2, 1) then
+                            hrp.Size = Vector3.new(2, 2, 1)
+                            hrp.Transparency = 1
+                        end
                     end)
                 end
             end
