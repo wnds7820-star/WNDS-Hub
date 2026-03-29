@@ -86,45 +86,48 @@ local function CreateESP(P)
     end)
 end
 
--- // HITBOX LOOP - VERSION 3.0 (SUPER STABLE)
-task.spawn(function()
-    while task.wait(0.5) do
-        local isEnabled = _G.WNDS_HEnabled
-        local rawSize = _G.WNDS_HSize
-        
-        -- Pastikan benar-benar angka murni
-        local safeSize = 2
-        if type(rawSize) == "number" then
-            safeSize = rawSize
-        elseif type(rawSize) == "string" then
-            safeSize = tonumber(rawSize) or 2
-        end
+-- // FUNGSI PEMBERSIH ANGKA (Taruh di paling atas file tab_visual.lua)
+local function GetSafeNumber(val, default)
+    if type(val) == "number" then return val end
+    if type(val) == "string" then return tonumber(val) or default end
+    if type(val) == "table" and val.Value then return tonumber(val.Value) or default end -- Jaga-jaga kalau Fluent kirim tabel
+    return default
+end
 
-        if isEnabled then
-            for _, p in pairs(Players:GetPlayers()) do
-                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                    local hrp = p.Character.HumanoidRootPart
-                    pcall(function()
-                        -- Gunakan koordinat yang pasti valid
-                        hrp.Size = Vector3.new(safeSize, safeSize, safeSize)
-                        hrp.Transparency = 0.7
-                        hrp.CanCollide = false
-                    end)
+-- // HITBOX LOOP - SUPER STABLE & SILENT
+task.spawn(function()
+    while task.wait(0.8) do -- Delay agak dilamain biar gak berat
+        local success, err = pcall(function()
+            local isEnabled = _G.WNDS_HEnabled
+            local safeSize = GetSafeNumber(_G.WNDS_HSize, 2) -- Paksa jadi angka murni
+
+            if isEnabled then
+                for _, p in pairs(Players:GetPlayers()) do
+                    if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                        local hrp = p.Character.HumanoidRootPart
+                        -- Eksekusi perubahan property secara individual agar tidak error berantai
+                        pcall(function() hrp.Size = Vector3.new(safeSize, safeSize, safeSize) end)
+                        pcall(function() hrp.Transparency = 0.7 end)
+                        pcall(function() hrp.CanCollide = false end)
+                    end
                 end
-            end
-        else
-            -- Reset ke ukuran asli Roblox (Hanya jalan sekali saat dimatikan)
-            for _, p in pairs(Players:GetPlayers()) do
-                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                    local hrp = p.Character.HumanoidRootPart
-                    pcall(function()
-                        if hrp.Size ~= Vector3.new(2, 2, 1) then
-                            hrp.Size = Vector3.new(2, 2, 1)
-                            hrp.Transparency = 1
+            else
+                -- RESET LOGIC (Hanya jika size tidak normal)
+                for _, p in pairs(Players:GetPlayers()) do
+                    if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                        local hrp = p.Character.HumanoidRootPart
+                        if hrp.Size.X ~= 2 then
+                            pcall(function() hrp.Size = Vector3.new(2, 2, 1) end)
+                            pcall(function() hrp.Transparency = 1 end)
                         end
-                    end)
+                    end
                 end
             end
+        end)
+        
+        -- Jika masih ada error, jangan ditampilkan di konsol (Sembunyikan)
+        if not success then
+            -- print("Silent Error Handled") 
         end
     end
 end)
