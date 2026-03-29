@@ -1,144 +1,52 @@
---[[
-    ============================================================
-    WNDS HUB PREMIUM MODULAR LOADER v6.0
-    ============================================================
-    Developer  : Raize
-    UI Engine  : Fluent Glassmorphism (Stable)
-    Environment: Mobile & PC Optimization
-    Status     : Undetected / Private System
-    ============================================================
-    
-    [ ARCHITECTURE ]
-    This script uses a high-end modular injection system. 
-    It initializes the core environment, builds the UI framework,
-    and merges all external modules from the /tabs/ directory.
-]]
-
--- // --- SECTION 1: CORE SERVICES & CONSTANTS ---
+local VisualTab = _G.WNDS_Window:AddTab({ Title = "Visuals", Icon = "eye" })
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
-local StarterGui = game:GetService("StarterGui")
-local TeleportService = game:GetService("TeleportService")
-local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
-local PlayerName = LocalPlayer.DisplayName or LocalPlayer.Name
 
--- // --- SECTION 2: ANTI-CRASH & ENVIRONMENT PROTECTOR ---
-local function GetSafeIdentity()
-    local name = "Unknown Mobile"
-    local s, r = pcall(function() return identifyexecutor() end)
-    if s and r then name = r end
-    return name
-end
+_G.WNDS_BodyESP = false
+_G.WNDS_HEnabled = false
+_G.WNDS_HSize = 2
 
-local CurrentExecutor = GetSafeIdentity()
+VisualTab:AddToggle("be", {Title = "Body ESP (Precise Square)", Default = false}):OnChanged(function(v) _G.WNDS_BodyESP = v end)
+VisualTab:AddToggle("he", {Title = "Hitbox Expander", Default = false}):OnChanged(function(v) _G.WNDS_HEnabled = v end)
+VisualTab:AddSlider("hs", {Title = "Hitbox Scale", Default = 2, Min = 2, Max = 25, Rounding = 1, Callback = function(v) _G.WNDS_HSize = v end})
 
--- // --- SECTION 3: INTERNAL SECURITY LAYERS (FILLER 1-300) ---
--- Logika ini menjaga agar script sulit di-copy/decompile
-local WNDS_Security = {}
-function WNDS_Security:Initialize()
-    for i = 1, 300 do
-        local _val = "WNDS_CORE_PROT_" .. i
-        local _logic = (i * 2) / 1.5
-        -- Melakukan simulasi validasi metadata internal hub
-    end
-end
-WNDS_Security:Initialize()
-
--- // --- SECTION 4: PERFORMANCE OPTIMIZER ---
-local function OptimizeSystem()
-    local success, err = pcall(function()
-        if setfpscap then setfpscap(120) end
-        settings().Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.Disabled
+local function CreateESP(P)
+    local l1, l2, l3, l4 = Drawing.new("Line"), Drawing.new("Line"), Drawing.new("Line"), Drawing.new("Line")
+    RunService.RenderStepped:Connect(function()
+        if _G.WNDS_BodyESP and P.Character and P.Character:FindFirstChild("HumanoidRootPart") and P ~= LocalPlayer then
+            local root = P.Character.HumanoidRootPart
+            local pos, os = Camera:WorldToViewportPoint(root.Position)
+            if os then
+                local cf = root.CFrame
+                local size = Vector3.new(2, 3, 0)
+                local tl = Camera:WorldToViewportPoint((cf * CFrame.new(-size.X, size.Y, 0)).p)
+                local tr = Camera:WorldToViewportPoint((cf * CFrame.new(size.X, size.Y, 0)).p)
+                local bl = Camera:WorldToViewportPoint((cf * CFrame.new(-size.X, -size.Y, 0)).p)
+                local br = Camera:WorldToViewportPoint((cf * CFrame.new(size.X, -size.Y, 0)).p)
+                l1.From, l1.To = Vector2.new(tl.X, tl.Y), Vector2.new(tr.X, tr.Y)
+                l2.From, l2.To = Vector2.new(tr.X, tr.Y), Vector2.new(br.X, br.Y)
+                l3.From, l3.To = Vector2.new(br.X, br.Y), Vector2.new(bl.X, bl.Y)
+                l4.From, l4.To = Vector2.new(bl.X, bl.Y), Vector2.new(tl.X, tl.Y)
+                for _,l in pairs({l1,l2,l3,l4}) do l.Visible = true; l.Thickness = 1.5; l.Color = Color3.new(0,1,1) end
+            else for _,l in pairs({l1,l2,l3,l4}) do l.Visible = false end end
+        else for _,l in pairs({l1,l2,l3,l4}) do l.Visible = false end end
     end)
-    if not success then warn("WNDS: Performance boost restricted.") end
 end
-OptimizeSystem()
 
--- // --- SECTION 5: UI LIBRARY BOOTSTRAPPER ---
--- Menggunakan official repository untuk menghindari HTTP 402 Error
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-
--- // --- SECTION 6: MAIN WINDOW CREATION ---
-local Window = Fluent:CreateWindow({
-    Title = "WNDS HUB v6.0",
-    SubTitle = "Hello " .. PlayerName, -- GREETING PLAYER
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true, 
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
-})
-
--- // --- SECTION 7: GLOBAL EXPORTS (THE BRIDGE) ---
--- Variabel ini dibagikan ke Global agar file di folder /tabs/ mengenali Window
-_G.WNDS_Window = Window
-_G.WNDS_Fluent = Fluent
-_G.WNDS_Player = LocalPlayer
-_G.WNDS_Status = "Initialized"
-
--- // --- SECTION 8: ADVANCED MODULE LOADER ---
-local function LoadWNDSModule(fileName)
-    -- Arahkan ke folder tabs di repository kamu
-    local baseUrl = "https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tabs/"
-    local success, content = pcall(function() return game:HttpGet(baseUrl .. fileName) end)
-    
-    if success and content then
-        local func, err = loadstring(content)
-        if func then
-            -- Inject variabel agar module mengenali Window & Fluent
-            local env = getfenv(func)
-            env.Window = _G.WNDS_Window
-            env.Fluent = _G.WNDS_Fluent
-            
-            local runSuccess, runError = pcall(func)
-            if not runSuccess then
-                warn("WNDS Module Error (" .. fileName .. "): " .. tostring(runError))
+task.spawn(function()
+    while task.wait(0.5) do
+        if _G.WNDS_HEnabled then
+            for _,p in pairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    p.Character.HumanoidRootPart.Size = Vector3.new(_G.WNDS_HSize, _G.WNDS_HSize, _G.WNDS_HSize)
+                    p.Character.HumanoidRootPart.Transparency = 0.7
+                end
             end
-        else
-            warn("WNDS Syntax Error in " .. fileName .. ": " .. tostring(err))
         end
-    else
-        warn("WNDS Failed to fetch: " .. fileName)
     end
-end
+end)
 
--- // --- SECTION 9: INTERNAL BUFFER (FILLER 301-550) ---
-local InternalData = {}
-for i = 1, 250 do
-    InternalData[i] = "WNDS_RESERVED_" .. i
-    -- Memproses algoritma internal agar script berat saat di-load
-end
-
--- // --- SECTION 10: MERGING ALL TABS (THE FINAL STEP) ---
--- Script akan menggabungkan semua fitur dari folder /tabs/ di sini
-LoadWNDSModule("tab_home.lua")
-LoadWNDSModule("tab_player.lua")
-LoadWNDSModule("tab_combat.lua")
-LoadWNDSModule("tab_visual.lua")
-LoadWNDSModule("tab_misc.lua")
-
--- // --- SECTION 11: FINAL NOTIFICATION ---
-Fluent:Notify({
-    Title = "WNDS Hub Loaded",
-    Content = "Hello " .. PlayerName .. ", your premium script is ready!",
-    SubContent = "Running on " .. CurrentExecutor,
-    Duration = 5
-})
-
--- Memilih tab pertama secara otomatis
-Window:SelectTab(1)
-
--- Console ASCII Art Success
-print([[
-    __      __  _  _  ____   ____    _   _  _   _  ____  
-    \ \    / / | \| ||  _ \ / ___|  | | | || | | || __ ) 
-     \ \  / /  | .  || | | |\___ \  | |_| || | | ||  _ \ 
-      \ \/ /   | |\ || |_| | ___) | |  _  || |_| || |_) |
-       \__/    |_| \_||____/ |____/  |_| |_| \___/ |____/ 
-    
-    [ MASTER LOADED SUCCESSFULLY FOR: ]] .. PlayerName .. [[ ]
-]])
+for _,v in pairs(Players:GetPlayers()) do CreateESP(v) end
+Players.PlayerAdded:Connect(CreateESP)
