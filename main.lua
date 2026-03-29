@@ -62,7 +62,7 @@ end
 -- // 4. DEBUG MODE: NYALAKAN SATU PER SATU DI SINI
 -- Hapus tanda -- di depan baris yang ingin kamu tes
 LoadModule("tab_home.lua") --aman
--- LoadModule("tab_player.lua")
+LoadModule("tab_player.lua")
 -- LoadModule("tab_combat.lua")
 -- LoadModule("tab_visual.lua") -- Coba nyalakan ini saja kalau mau tes Hitbox
 -- LoadModule("tab_world.lua") 
