@@ -54,7 +54,14 @@ LoadModule("tab_world.lua")   -- Baru!
 LoadModule("tab_misc.lua")
 LoadModule("tab_settings.lua")
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Mengambil Display Name (Nama Keren) atau Name (Username Asli)
+local playerName = LocalPlayer.DisplayName
+
 WindUI:Notify({
     Title = "WNDS Hub", 
-    Content = "Welcome back, " .. playerName .. "! Running on " .. (execName or "Unknown Executor"), 
-    Duration = 4
+    Content = "Welcome back, " .. playerName .. "!", 
+    Duration = 3
+})
