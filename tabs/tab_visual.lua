@@ -86,22 +86,42 @@ local function CreateESP(P)
     end)
 end
 
--- // HITBOX LOOP
+-- // HITBOX LOOP - FIXED VERSION (NO CONSOLE SPAM)
 task.spawn(function()
     while task.wait(0.5) do
-        if _G.WNDS_HEnabled then
-            for _,p in pairs(Players:GetPlayers()) do
+        -- Pastikan variabel global ada dan tipenya benar
+        local isEnabled = _G.WNDS_HEnabled
+        local rawSize = _G.WNDS_HSize or 2
+        local safeSize = tonumber(rawSize) or 2 -- Konversi paksa ke angka
+
+        if isEnabled then
+            for _, p in pairs(Players:GetPlayers()) do
+                -- Pastikan bukan diri sendiri, karakter ada, dan punya RootPart
                 if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
                     local hrp = p.Character.HumanoidRootPart
-                    -- Pastikan WNDS_HSize dikonversi ke number
-                    local s = tonumber(_G.WNDS_HSize) or 2 
-                    hrp.Size = Vector3.new(s, s, s)
-                    hrp.Transparency = 0.7
+                    
+                    -- Proteksi: Kadang game mengunci properti Size, gunakan pcall agar tidak error ke konsol
+                    pcall(function()
+                        hrp.Size = Vector3.new(safeSize, safeSize, safeSize)
+                        hrp.Transparency = 0.7
+                        hrp.CanCollide = false
+                    end)
+                end
+            end
+        else
+            -- Reset Hitbox jika dimatikan
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = p.Character.HumanoidRootPart
+                    pcall(function()
+                        hrp.Size = Vector3.new(2, 2, 1) -- Ukuran default Roblox
+                        hrp.Transparency = 1
+                    end)
                 end
             end
         end
     end
-end))
+end)
 
 -- // INITIALIZE
 for _,v in pairs(Players:GetPlayers()) do CreateESP(v) end
