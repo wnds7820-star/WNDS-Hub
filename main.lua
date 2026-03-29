@@ -1,38 +1,42 @@
--- // WNDS HUB v5.4
--- // Developer: Raize
+-- // WNDS HUB v5.4 - STEP 1: UI TEST
+-- // Fokus: Cuma buat munculin menu!
 
 local WindUI = nil
-local Success = false
 
--- Daftar Link Alternatif (Kalau satu mati, pakai yang lain)
-local Links = {
-    "https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/Source.lua",
+-- Kita coba ambil Library lewat link yang paling stabil
+local success, result = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/Source.lua"))()
+end)
 
-print("🚀 [WNDS]: Menghubungkan ke Library UI...")
-
--- Mencoba memuat library dari daftar link
-for _, url in pairs(Links) do
-    if not Success then
-        local s, res = pcall(function()
-            return loadstring(game:HttpGet(url))()
-        end)
-        if s and res then
-            WindUI = res
-            Success = true
-            print("✅ [WNDS]: Berhasil terhubung melalui: " .. url)
-        end
-    end
-end
-
-if not Success or not WindUI then
-    warn("❌ [WNDS]: Semua jalur koneksi terblokir! Gunakan VPN atau ganti DNS.")
+if success and result then
+    WindUI = result
+    print("✅ [WNDS]: Library Berhasil Diambil!")
+else
+    warn("❌ [WNDS]: Gagal ambil Library. Masalah koneksi/DNS.")
     return
 end
 
--- // MULAI BUAT MENU (Jalankan hanya jika WindUI ada)
+-- Bikin Window Sederhana
 local Window = WindUI:CreateWindow({
     Title = "WNDS Hub v5.4",
     Icon = "rbxassetid://10723343321",
     Author = "by Raize",
-    Folder = "WNDS_Configs"
+    Folder = "WNDS_Test"
 })
+
+-- Tambah satu tab buat ngetes
+local TabTest = Window:AddTab({ Title = "Test Tab", Icon = "check" })
+
+TabTest:AddButton({
+    Title = "Klik Aku",
+    Desc = "Kalau muncul notif, berarti UI aman!",
+    Callback = function()
+        WindUI:Notify({
+            Title = "Sukses!",
+            Content = "UI WNDS Berhasil Muncul, Raize!",
+            Duration = 3
+        })
+    end
+})
+
+print("✅ [WNDS]: Window harusnya muncul sekarang!")
