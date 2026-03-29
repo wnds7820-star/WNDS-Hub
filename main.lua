@@ -1,4 +1,4 @@
--- // WNDS HUB v5.4 - MODULAR LOADER
+-- // WNDS HUB v5.4 - FIXED MODULAR LOADER
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
 local Window = WindUI:CreateWindow({
@@ -13,30 +13,33 @@ local Window = WindUI:CreateWindow({
     }
 })
 
--- Bagian Penting: Fungsi Load Tab dari GitHub
-local function LoadTab(fileName)
-    local url = "https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/tabs/" .. fileName
+-- Fungsi Load Module yang Aman
+local function LoadModule(fileName)
+    -- Pastikan link ini mengarah ke folder 'tabs' di GitHub-mu
+    local url = "https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/tabs/" .. fileName
+    
     local success, content = pcall(function() return game:HttpGet(url) end)
-    if success then
+    
+    -- Cek apakah yang di-download itu beneran kode atau pesan error 404
+    if success and not content:find("404: Not Found") then
         local func, err = loadstring(content)
-        if func then 
-            -- Masukkan Window & WindUI ke environment tab agar bisa dipakai di file terpisah
+        if func then
             getfenv(func).Window = Window
             getfenv(func).WindUI = WindUI
-            return func() 
+            return func()
         else
-            warn("Syntax Error di " .. fileName .. ": " .. err)
+            warn("❌ Syntax Error di " .. fileName .. ": " .. err)
         end
     else
-        warn("Gagal Load File: " .. fileName)
+        warn("⚠️ File " .. fileName .. " tidak ditemukan di GitHub (404).")
     end
 end
 
--- Panggil semua file tab (Buat folder bernama 'tabs' di GitHub-mu)
-LoadTab("tab_home.lua")
-LoadTab("tab_combat.lua")
-LoadTab("tab_player.lua")
-LoadTab("tab_visual.lua")
-LoadTab("tab_settings.lua")
+-- Panggil Tab secara berurutan
+LoadModule("tab_home.lua")
+LoadModule("tab_combat.lua")
+LoadModule("tab_player.lua")
+LoadModule("tab_visual.lua")
+LoadModule("tab_settings.lua")
 
-WindUI:Notify({Title = "WNDS Hub", Content = "Semua Module Berhasil Dimuat!", Duration = 5})
+WindUI:Notify({Title = "WNDS Hub", Content = "Modular System Ready!", Duration = 3})
