@@ -1,4 +1,5 @@
-local Init = loadstring(game:HttpGet("https://raw.githubusercontent.com/YOURUSERNAME/ftgs-hub/main/src/init.lua"))()
+-- src/tabs/overview.lua
+local Init = loadstring(game:HttpGet("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/src/init.lua"))()
 local Window = Init.Window
 
 local Tab = Window:Tab({
@@ -8,24 +9,15 @@ local Tab = Window:Tab({
     Border = true,
 })
 
-Tab:Section({ Title = "Welcome to .ftgs hub" })
+Tab:Section({ Title = "Welcome to WNDS-Hub" })
 
 Tab:Button({
     Title = "Test Notification",
     Callback = function()
         WindUI:Notify({
             Title = "Success",
-            Content = "Hub is working perfectly!",
+            Content = "WNDS-Hub is working perfectly!",
             Duration = 5
         })
-    end,
-})
-
-Tab:Space()
-
-Tab:Toggle({
-    Title = "Auto Enable Features",
-    Callback = function(v)
-        print("Auto features:", v)
     end,
 })
