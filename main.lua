@@ -54,4 +54,7 @@ LoadModule("tab_world.lua")   -- Baru!
 LoadModule("tab_misc.lua")
 LoadModule("tab_settings.lua")
 
-WindUI:Notify({Title = "WNDS Hub", Content = "Welcome back, Raize!", Duration = 3})
+WindUI:Notify({
+    Title = "WNDS Hub", 
+    Content = "Welcome back, " .. playerName .. "! Running on " .. (execName or "Unknown Executor"), 
+    Duration = 4
