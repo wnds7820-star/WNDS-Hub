@@ -1,137 +1,47 @@
--- // WNDS HUB v6.0 - PLAYER MOVEMENT MODULE
--- // Bagian 1: Advanced WalkSpeed & JumpPower Control
--- // Dikembangkan oleh Raize untuk WNDS Hub
+-- // WNDS HUB v6.0 - ADVANCED PLAYER MODULE
+-- // Full Module: Movement Bypass & Static Flight System
+-- // Created by Raize
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
--- // --- INTERNAL SETTINGS ---
--- Variabel global agar bisa diakses oleh sistem lain (seperti Config Save/Load)
+-- // --- INTERNAL GLOBAL VARIABLES ---
 _G.WalkSpeedValue = 16
 _G.JumpPowerValue = 50
 _G.MovementEnabled = false 
 
--- // --- CORE MOVEMENT ENGINE ---
--- Fungsi utama yang menangani sinkronisasi fisik karakter
+_G.FlyEnabled = false
+_G.FlySpeed = 50
 
-local function ApplyMovementLogic()
+-- // --- CORE MOVEMENT ENGINE (BYPASS) ---
+local function ApplyMovement()
     local Character = LocalPlayer.Character
     if Character then
         local Humanoid = Character:FindFirstChildOfClass("Humanoid")
         if Humanoid then
-            -- Jika Toggle Aktif, kunci nilai ke slider
             if _G.MovementEnabled then
-                -- Menangani WalkSpeed (Kecepatan Lari)
-                if Humanoid.WalkSpeed ~= _G.WalkSpeedValue then
-                    Humanoid.WalkSpeed = _G.WalkSpeedValue
-                end
-                
-                -- Menangani Lompatan (JumpPower / JumpHeight)
-                -- Logika ini mendeteksi sistem lompatan yang dipakai game secara otomatis
+                Humanoid.WalkSpeed = _G.WalkSpeedValue
                 if Humanoid.UseJumpPower then
-                    if Humanoid.JumpPower ~= _G.JumpPowerValue then
-                        Humanoid.JumpPower = _G.JumpPowerValue
-                    end
+                    Humanoid.JumpPower = _G.JumpPowerValue
                 else
-                    -- Konversi JumpPower ke JumpHeight (Matematika Dasar Roblox)
-                    -- Rumus: Height = (Power^2) / (2 * Gravity)
-                    -- Kita pakai estimasi rata-rata agar slider terasa natural
-                    local TargetHeight = _G.JumpPowerValue / 7.2
-                    if Humanoid.JumpHeight ~= TargetHeight then
-                        Humanoid.JumpHeight = TargetHeight
-                    end
+                    Humanoid.JumpHeight = _G.JumpPowerValue / 7.2
                 end
             else
-                -- Jika Toggle Mati, kembalikan ke standar (16 dan 50)
-                if Humanoid.WalkSpeed ~= 16 then Humanoid.WalkSpeed = 16 end
+                Humanoid.WalkSpeed = 16
                 if Humanoid.UseJumpPower then
-                    if Humanoid.JumpPower ~= 50 then Humanoid.JumpPower = 50 end
+                    Humanoid.JumpPower = 50
                 else
-                    if Humanoid.JumpHeight ~= 7.2 then Humanoid.JumpHeight = 7.2 end
+                    Humanoid.JumpHeight = 7.2
                 end
             end
         end
     end
 end
 
--- // --- ANTI-RESET HANDLER ---
--- Menggunakan RenderStepped (60fps+) agar bypass tetap terjaga setiap frame
--- Ini mencegah game-game seperti Blox Fruits atau Bedwars mereset kecepatanmu
-
-RunService.RenderStepped:Connect(function()
-    local Success, Error = pcall(function()
-        ApplyMovementLogic()
-    end)
-    -- Jika terjadi error (misal karakter mati), fungsi akan otomatis berhenti sejenak
-end)
-
--- // --- UI RENDERING (WindUI) ---
--- Bagian ini yang membuat tampilan menu di dalam tab Player
-
-local PlayerTab = Window:Tab({
-    Title = "Player",
-    Icon = "solar:user-bold",
-    Border = true,
-})
-
-local MoveSec = PlayerTab:Section({ Title = "Movement Modification" })
-
-MoveSec:Toggle({
-    Title = "Enable Custom Movement",
-    Desc = "Aktifkan bypass agar kecepatan lari & lompat terkunci",
-    Callback = function(v)
-        _G.MovementEnabled = v
-        
-        -- Notifikasi instan saat diaktifkan
-        if v then
-            WindUI:Notify({
-                Title = "WNDS Movement",
-                Content = "Bypass Enabled: " .. _G.WalkSpeedValue .. " WS",
-                Duration = 2
-            })
-        end
-    end,
-})
-
-MoveSec:Slider({
-    Title = "WalkSpeed (Speed)",
-    Desc = "Kecepatan lari karakter (Default: 16)",
-    Step = 1,
-    Value = { Min = 16, Max = 500, Default = 16 },
-    Callback = function(v)
-        _G.WalkSpeedValue = v
-    end,
-})
-
-MoveSec:Slider({
-    Title = "JumpPower (High Jump)",
-    Desc = "Kekuatan lompatan karakter (Default: 50)",
-    Step = 1,
-    Value = { Min = 50, Max = 1000, Default = 50 },
-    Callback = function(v)
-        _G.JumpPowerValue = v
-    end,
-})
-
--- Logika 500+ baris ke bawah biasanya mencakup proteksi Metatable
--- Agar script lain tidak bisa membaca perubahan WalkSpeed kita (Anti-Detection)
-
--- // WNDS HUB v6.0 - PLAYER MOVEMENT MODULE
--- // Bagian 2: Static Flight System (Independent Input)
--- // Request by Raize: Q = Down, E = Up, WASD = Movement
-
--- // --- INTERNAL VARIABLES ---
-_G.FlyEnabled = false
-_G.FlySpeed = 50
-
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local LocalPlayer = game:GetService("Players").LocalPlayer
-local Camera = workspace.CurrentCamera
-
--- // --- STATIC FLY ENGINE ---
-
+-- // --- STATIC FLY ENGINE (W,A,S,D + Q,E) ---
 local function StartFlight()
     local Character = LocalPlayer.Character
     if not Character or not Character:FindFirstChild("HumanoidRootPart") then return end
@@ -139,19 +49,17 @@ local function StartFlight()
     local Root = Character.HumanoidRootPart
     local Hum = Character:FindFirstChildOfClass("Humanoid")
     
-    -- Pembersihan Body Mover lama agar tidak konflik
+    -- Pembersihan Body Mover lama
     for _, v in pairs(Root:GetChildren()) do
-        if v:IsA("BodyVelocity") or v:IsA("BodyGyro") then v:Destroy() end
+        if v.Name == "WNDS_FlyVelocity" or v.Name == "WNDS_FlyGyro" then v:Destroy() end
     end
     
-    -- BodyVelocity: Menjaga posisi agar DIAM (Static) jika tidak ada input
     local BV = Instance.new("BodyVelocity")
     BV.Name = "WNDS_FlyVelocity"
-    BV.MaxForce = Vector3.new(9e9, 9e9, 9e9) -- Gaya tak terbatas agar anti-gravitasi
-    BV.Velocity = Vector3.new(0, 0, 0) -- Default diam total
+    BV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+    BV.Velocity = Vector3.new(0, 0, 0)
     BV.Parent = Root
     
-    -- BodyGyro: Mengunci rotasi karakter agar tetap tegak dan menghadap kamera
     local BG = Instance.new("BodyGyro")
     BG.Name = "WNDS_FlyGyro"
     BG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
@@ -159,45 +67,71 @@ local function StartFlight()
     BG.CFrame = Root.CFrame
     BG.Parent = Root
     
-    -- Membuat karakter dalam mode melayang (PlatformStand)
     if Hum then Hum.PlatformStand = true end
 
-    -- LOOPING TERBANG (High-Frequency Input Detection)
     task.spawn(function()
         while _G.FlyEnabled and Character:FindFirstChild("HumanoidRootPart") do
             local MoveDirection = Vector3.new(0, 0, 0)
             local CamCF = Camera.CFrame
             
-            -- Deteksi Input Sesuai Request Raize:
-            if UserInputService:IsKeyDown(Enum.KeyCode.W) then MoveDirection += CamCF.LookVector end -- Maju
-            if UserInputService:IsKeyDown(Enum.KeyCode.S) then MoveDirection -= CamCF.LookVector end -- Mundur
-            if UserInputService:IsKeyDown(Enum.KeyCode.A) then MoveDirection -= CamCF.RightVector end -- Kiri
-            if UserInputService:IsKeyDown(Enum.KeyCode.D) then MoveDirection += CamCF.RightVector end -- Kanan
-            if UserInputService:IsKeyDown(Enum.KeyCode.E) then MoveDirection += Vector3.new(0, 1, 0) end -- Naik (E)
-            if UserInputService:IsKeyDown(Enum.KeyCode.Q) then MoveDirection -= Vector3.new(0, 1, 0) end -- Turun (Q)
+            -- Input Logic (Request Raize)
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then MoveDirection += CamCF.LookVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then MoveDirection -= CamCF.LookVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then MoveDirection -= CamCF.RightVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then MoveDirection += CamCF.RightVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.E) then MoveDirection += Vector3.new(0, 1, 0) end
+            if UserInputService:IsKeyDown(Enum.KeyCode.Q) then MoveDirection -= Vector3.new(0, 1, 0) end
             
-            -- Logika Pengunci: Jika tidak ada tombol ditekan, kecepatan 0 (Diam Statis)
             if MoveDirection.Magnitude > 0 then
                 BV.Velocity = MoveDirection.Unit * _G.FlySpeed
             else
-                BV.Velocity = Vector3.new(0, 0, 0) -- Berhenti total di udara
+                BV.Velocity = Vector3.new(0, 0, 0)
             end
             
-            -- Update rotasi agar karakter selalu menghadap arah kamera
             BG.CFrame = CamCF
-            
             RunService.RenderStepped:Wait()
         end
         
-        -- Cleanup saat Fitur Fly dimatikan (OFF)
+        -- Cleanup
         if BV then BV:Destroy() end
         if BG then BG:Destroy() end
         if Hum then Hum.PlatformStand = false end
     end)
 end
 
--- // --- UI ELEMENTS (Tambahkan di bawah slider JumpPower) ---
+-- // --- MAIN LOOP (60 FPS+) ---
+RunService.RenderStepped:Connect(function()
+    pcall(ApplyMovement)
+end)
 
+-- // --- UI RENDERING (Window harus dipanggil di sini) ---
+local PlayerTab = Window:Tab({
+    Title = "Player",
+    Icon = "solar:user-bold",
+    Border = true,
+})
+
+-- SECTION 1: MOVEMENT
+local MoveSec = PlayerTab:Section({ Title = "Movement Modification" })
+
+MoveSec:Toggle({
+    Title = "Enable Custom Movement",
+    Callback = function(v) _G.MovementEnabled = v end,
+})
+
+MoveSec:Slider({
+    Title = "WalkSpeed",
+    Value = { Min = 16, Max = 500, Default = 16 },
+    Callback = function(v) _G.WalkSpeedValue = v end,
+})
+
+MoveSec:Slider({
+    Title = "JumpPower",
+    Value = { Min = 50, Max = 1000, Default = 50 },
+    Callback = function(v) _G.JumpPowerValue = v end,
+})
+
+-- SECTION 2: FLIGHT
 local FlySec = PlayerTab:Section({ Title = "Flight Control" })
 
 FlySec:Toggle({
@@ -205,29 +139,12 @@ FlySec:Toggle({
     Desc = "WASD = Move | E = Up | Q = Down",
     Callback = function(v)
         _G.FlyEnabled = v
-        if v then
-            StartFlight()
-            WindUI:Notify({Title = "WNDS", Content = "Flight Mode Activated", Duration = 2})
-        else
-            -- Pastikan saat OFF karakter langsung jatuh normal (Reset Physics)
-            local Character = LocalPlayer.Character
-            if Character and Character:FindFirstChild("HumanoidRootPart") then
-                for _, obj in pairs(Character.HumanoidRootPart:GetChildren()) do
-                    if obj.Name == "WNDS_FlyVelocity" or obj.Name == "WNDS_FlyGyro" then obj:Destroy() end
-                end
-            end
-        end
+        if v then StartFlight() end
     end,
 })
 
 FlySec:Slider({
-    Title = "Flight Speed",
-    Desc = "Kecepatan terbang karakter",
+    Title = "Fly Speed",
     Value = { Min = 10, Max = 500, Default = 50 },
-    Callback = function(v)
-        _G.FlySpeed = v
-    end,
+    Callback = function(v) _G.FlySpeed = v end,
 })
-
--- Logika 500+ baris di sini mencakup pencegahan karakter berputar 
--- secara liar saat menyentuh objek (Friction Override)...
