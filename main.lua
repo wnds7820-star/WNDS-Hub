@@ -45,9 +45,12 @@ end
 
 -- // DAFTAR SEMUA TAB (Wajib di sini agar muncul)
 LoadModule("tab_home.lua")
-LoadModule("tab_updates.lua") -- Tab Changelog yang kita buat tadi
+LoadModule("tab_updates.lua")
+LoadModule("tab_combat.lua")  -- Baru!
+LoadModule("tab_farming.lua") -- Baru!
 LoadModule("tab_player.lua")
 LoadModule("tab_visual.lua")
+LoadModule("tab_world.lua")   -- Baru!
 LoadModule("tab_misc.lua")
 LoadModule("tab_settings.lua")
 
