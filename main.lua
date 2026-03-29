@@ -10,7 +10,7 @@ if not success or not WindUI then
 end
 
 local function loadModule(path)
-    local url = "https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/main.lua" .. path
+    local url = "https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/" .. path
     local success, code = pcall(game.HttpGet, game, url)
     if not success then
         error("❌ Gagal load: " .. path)
@@ -18,9 +18,11 @@ local function loadModule(path)
     return loadstring(code)()
 end
 
+-- Load init
 local Init = loadModule("src/init.lua")
 local Window = Init.Window
 
+-- Load semua tab
 loadModule("src/tabs/overview.lua")
 loadModule("src/tabs/player.lua")
 loadModule("src/tabs/movement.lua")
@@ -28,4 +30,4 @@ loadModule("src/tabs/visuals.lua")
 loadModule("src/tabs/combat.lua")
 loadModule("src/tabs/misc.lua")
 
-print("✅ WNDS-Hub berhasil dimuat!")
+print("✅ WNDS-Hub berhasil dimuat! (Adaptive Mobile/PC)")
