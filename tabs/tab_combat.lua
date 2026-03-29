@@ -1,7 +1,3 @@
--- // WNDS HUB v6.3 - INSTANT COMBAT MODULE
--- // Full Module: Aimbot, FOV, Team Check
--- // Logika: Instant UI & Double-Tap Navigation
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -25,7 +21,6 @@ FOVCircle.Filled = false
 FOVCircle.Color = Color3.fromRGB(48, 255, 106)
 
 -- // --- CORE COMBAT ENGINE ---
-
 local function GetClosestPlayer()
     local target = nil
     local shortestDistance = math.huge
@@ -48,12 +43,10 @@ local function GetClosestPlayer()
 end
 
 RunService.RenderStepped:Connect(function()
-    -- FOV Update
     FOVCircle.Visible = _G.ShowFov
     FOVCircle.Radius = _G.FovRadius
     FOVCircle.Position = UserInputService:GetMouseLocation()
 
-    -- Aimbot Execution
     if _G.AimbotEnabled then
         local target = GetClosestPlayer()
         if target and target.Character and target.Character:FindFirstChild(_G.AimPart) then
@@ -72,22 +65,12 @@ local CombatTab = Window:Tab({
     Border = true,
 })
 
--- LOGIKA DOUBLE-TAP TO HOME
-local lastClick = 0
-CombatTab:OnSelected(function()
-    local currentTime = tick()
-    if currentTime - lastClick < 0.5 then
-        Window:SelectTab("Home") 
-    end
-    lastClick = currentTime
-end)
-
--- SEMUA FITUR LANGSUNG MUNCUL (INSTANT)
-local MainSec = CombatTab:Section({ Title = "Targeting System", Visible = true })
+-- SECTION: LANGSUNG TERBUKA (MENGGUNAKAN SECTION BIASA AGAR STABIL)
+local MainSec = CombatTab:Section({ Title = "Targeting System" })
 
 MainSec:Toggle({
     Title = "Enable Aimbot",
-    Desc = "Otomatis mengunci target terdekat di layar",
+    Desc = "Otomatis mengunci target",
     Callback = function(v) _G.AimbotEnabled = v end,
 })
 
@@ -101,7 +84,6 @@ MainSec:Dropdown({
 
 MainSec:Slider({
     Title = "Aim Smoothness",
-    Desc = "Kecil = Cepat | Besar = Halus (Default: 0.5)",
     Step = 0.1,
     Value = { Min = 0.1, Max = 1, Default = 0.5 },
     Callback = function(v) _G.Smoothness = v end,
@@ -109,7 +91,6 @@ MainSec:Slider({
 
 MainSec:Toggle({
     Title = "Show FOV Circle",
-    Desc = "Menampilkan lingkaran area target",
     Callback = function(v) _G.ShowFov = v end,
 })
 
@@ -124,5 +105,3 @@ MainSec:Toggle({
     Default = true,
     Callback = function(v) _G.TeamCheck = v end,
 })
-
--- Sisa 300+ baris diisi logika proteksi variable...
