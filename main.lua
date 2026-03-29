@@ -36,11 +36,15 @@ local function LoadModule(fileName)
 end
 
 -- Panggil Tab secara berurutan
-LoadModule("tab_home.lua")
-LoadModule("tab_combat.lua")
-LoadModule("tab_player.lua")
-LoadModule("tab_visual.lua")
-LoadModule("tab_settings.lua")
-LoadModule("tab_misc.lua")
+LoadModule("tab_home.lua")     -- Memunculkan Tab Home
+LoadModule("tab_combat.lua")   -- Memunculkan Tab Combat
+LoadModule("tab_player.lua")   -- Memunculkan Tab Player
+LoadModule("tab_visual.lua")   -- Memunculkan Tab Visual
+LoadModule("tab_misc.lua")     -- TAMBAHKAN BARIS INI AGAR MISC MUNCUL!
+LoadModule("tab_settings.lua") -- Memunculkan Tab Settings
 
-WindUI:Notify({Title = "WNDS Hub", Content = "Modular System Ready!", Duration = 3})
+WindUI:Notify({
+    Title = "WNDS Hub v5.4", 
+    Content = "Semua Module Berhasil Dimuat!", 
+    Duration = 5
+})
