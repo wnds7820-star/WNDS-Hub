@@ -27,3 +27,25 @@ ConfigSection:Button({
     Title = "Copy JobId",
     Callback = function() setclipboard(game.JobId) end,
 })
+
+local ManagementSection = SettingsTab:Section({ Title = "Script Management" })
+
+ManagementSection:Button({
+    Title = "Reload WNDS Hub",
+    Desc = "Memuat ulang seluruh script dari GitHub",
+    Color = Color3.fromHex("#30ff6a"),
+    Callback = function()
+        -- Menghapus UI lama agar tidak tumpang tindih
+        Window:Destroy()
+        
+        -- Menjalankan ulang loader utama
+        task.wait(0.5)
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/main.lua"))()
+        
+        WindUI:Notify({
+            Title = "Reloaded!",
+            Content = "Script berhasil diperbarui dari GitHub.",
+            Duration = 3
+        })
+    end
+})
