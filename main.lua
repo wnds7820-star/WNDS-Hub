@@ -115,11 +115,11 @@ end
 
 -- // --- SECTION 10: MERGING ALL TABS (THE FINAL STEP) ---
 -- Script akan menggabungkan semua fitur dari folder /tabs/ di sini
+LoadWNDSModule("tab_home.lua")
 LoadWNDSModule("tab_player.lua")
 LoadWNDSModule("tab_combat.lua")
 LoadWNDSModule("tab_visual.lua")
 LoadWNDSModule("tab_misc.lua")
-LoadWNDSModule("tab_home.lua")
 
 -- // --- SECTION 11: FINAL NOTIFICATION ---
 Fluent:Notify({
