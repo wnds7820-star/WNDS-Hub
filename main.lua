@@ -61,14 +61,14 @@ end
 
 -- // 4. DEBUG MODE: NYALAKAN SATU PER SATU DI SINI
 -- Hapus tanda -- di depan baris yang ingin kamu tes
--- LoadModule("tab_home.lua")
-LoadModule("tab_player.lua")
-LoadModule("tab_combat.lua")
-LoadModule("tab_visual.lua")
-LoadModule("tab_world.lua") 
-LoadModule("tab_misc.lua")
-LoadModule("tab_updates.lua")
-LoadModule("tab_settings.lua") -- FIX: Kurung tutup ganda sudah dihapus
+LoadModule("tab_home.lua") --aman
+-- LoadModule("tab_player.lua")
+-- LoadModule("tab_combat.lua")
+-- LoadModule("tab_visual.lua") -- Coba nyalakan ini saja kalau mau tes Hitbox
+-- LoadModule("tab_world.lua") 
+-- LoadModule("tab_misc.lua")
+-- LoadModule("tab_updates.lua")
+-- LoadModule("tab_settings.lua") -- FIX: Kurung tutup ganda sudah dihapus
 
 -- Menghubungkan ke Tab pertama (Home) saat startup
 Window:SelectTab(1)
