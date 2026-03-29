@@ -1,24 +1,37 @@
--- // WNDS HUB v5.4 - FIX LOAD ERROR
+-- // WNDS HUB v5.4
 -- // Developer: Raize
 
 local WindUI = nil
+local Success = false
 
--- Loop untuk memastikan library beneran ke-load (Anti-Nil)
-local success, result = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/Source.lua"))()
-end)
+-- Daftar Link Alternatif (Kalau satu mati, pakai yang lain)
+local Links = {
+    "https://raw.githubusercontent.com/Footagesus/WindUI/refs/heads/main/Source.lua",
+    "https://treehouse.overdrive.id/WindUI/main.lua" -- Mirror Link
+}
 
-if success and result then
-    WindUI = result
-else
-    warn("❌ [WNDS]: Gagal mengambil Library UI! Cek koneksi.")
+print("🚀 [WNDS]: Menghubungkan ke Library UI...")
+
+-- Mencoba memuat library dari daftar link
+for _, url in pairs(Links) do
+    if not Success then
+        local s, res = pcall(function()
+            return loadstring(game:HttpGet(url))()
+        end)
+        if s and res then
+            WindUI = res
+            Success = true
+            print("✅ [WNDS]: Berhasil terhubung melalui: " .. url)
+        end
+    end
+end
+
+if not Success or not WindUI then
+    warn("❌ [WNDS]: Semua jalur koneksi terblokir! Gunakan VPN atau ganti DNS.")
     return
 end
 
--- Tunggu sebentar biar library siap di memory
-task.wait(0.5)
-
--- // START CREATING WINDOW
+-- // MULAI BUAT MENU (Jalankan hanya jika WindUI ada)
 local Window = WindUI:CreateWindow({
     Title = "WNDS Hub v5.4",
     Icon = "rbxassetid://10723343321",
@@ -26,45 +39,17 @@ local Window = WindUI:CreateWindow({
     Folder = "WNDS_Configs"
 })
 
--- // --- TAB: INFO ---
+-- TAB INFO
 local TabInfo = Window:AddTab({ Title = "Info", Icon = "info" })
-TabInfo:AddParagraph({
-    Title = "User Profile",
-    Desc = "Welcome back, " .. game.Players.LocalPlayer.DisplayName
-})
+TabInfo:AddParagraph({ Title = "Dashboard", Desc = "User: " .. game.Players.LocalPlayer.Name })
 
--- // --- TAB: COMBAT ---
-local TabCombat = Window:AddTab({ Title = "Combat", Icon = "sword" })
-TabCombat:AddToggle({
-    Title = "Silent Aim",
-    Default = false,
-    Callback = function(v) _G.SilentAim = v end
-})
-
--- // --- TAB: PLAYER ---
+-- TAB PLAYER
 local TabPlayer = Window:AddTab({ Title = "Player", Icon = "user" })
 TabPlayer:AddSlider({
-    Title = "WalkSpeed",
-    Min = 16, Max = 500, Default = 16,
-    Callback = function(v) 
-        pcall(function() game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v end) 
-    end
+    Title = "Speed",
+    Min = 16, Max = 300, Default = 16,
+    Callback = function(v) game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v end
 })
 
--- // --- TAB: SETTINGS ---
-local TabSettings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-TabSettings:AddButton({
-    Title = "Rejoin Server",
-    Callback = function()
-        game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
-    end
-})
-
--- // NOTIFIKASI SUKSES
-WindUI:Notify({
-    Title = "WNDS Hub",
-    Content = "Script Ready to Use!",
-    Duration = 3
-})
-
-print("✅ [WNDS]: Window Created Successfully!")
+-- NOTIFIKASI
+WindUI:Notify({ Title = "WNDS Hub", Content = "Script Ready!", Duration = 3 })
