@@ -1,6 +1,6 @@
 -- // WNDS HUB - OFFICIAL CHANGELOG SYSTEM
 -- // Developer: Raize
--- // Version: 2.0.0 [LATEST]
+-- // Version: [LATEST]
 
 local Window = _G.WNDS_Window
 local Fluent = _G.WNDS_Fluent
@@ -14,7 +14,7 @@ local UpdatesTab = Window:AddTab({
 local StatusSec = UpdatesTab:AddSection("System Status")
 
 StatusSec:AddParagraph({
-    Title = "Current Version: v2.0.0 [PREMIUM]",
+    Title = "Current Version: [NEW]",
     Content = "Status: Online & Undetected\nLast Sync: " .. os.date("%d %B, %Y")
 })
 
