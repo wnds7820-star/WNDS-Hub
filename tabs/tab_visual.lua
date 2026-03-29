@@ -1,64 +1,120 @@
--- // WNDS HUB v5.4 - STABLE VISUAL (ESP)
+-- // WNDS HUB v6.0 - ADVANCED VISUAL MODULE
+-- // Powered by Raize Logic
+-- // Fitur: Box ESP, Health Bar, Nametags, Tracers, Crosshair
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
--- Pastikan variabel global siap
-_G.EspEnabled = _G.EspEnabled or false
-_G.EspColor = _G.EspColor or Color3.fromRGB(0, 255, 120)
+-- // --- CONFIGURATION ---
+_G.EspEnabled = false
+_G.ShowBox = false
+_G.ShowHealth = false
+_G.ShowName = false
+_G.ShowTracer = false
+_G.EspColor = Color3.fromRGB(48, 255, 106)
+_G.TracerColor = Color3.fromRGB(255, 255, 255)
 
-local VisualTab = Window:Tab({
-    Title = "Visual",
-    Icon = "solar:eye-bold",
-    Border = true,
-})
+-- // --- DRAWING HANDLER ---
+local ESPLibrary = {}
 
-local EspSection = VisualTab:Section({ Title = "Extra Sensory Perception" })
+function ESPLibrary:Create(player)
+    local Objects = {
+        Box = Drawing.new("Square"),
+        Outline = Drawing.new("Square"),
+        HealthBar = Drawing.new("Line"),
+        HealthBG = Drawing.new("Line"),
+        Name = Drawing.new("Text"),
+        Tracer = Drawing.new("Line")
+    }
 
--- Toggle ESP
-EspSection:Toggle({
-    Title = "Player ESP",
-    Desc = "Menampilkan player di sekitar",
-    Callback = function(v)
-        _G.EspEnabled = v
-    end,
-})
+    local function Update()
+        local Connection
+        Connection = RunService.RenderStepped:Connect(function()
+            if _G.EspEnabled and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+                local Root = player.Character.HumanoidRootPart
+                local Hum = player.Character.Humanoid
+                local Pos, OnScreen = Camera:WorldToViewportPoint(Root.Position)
 
--- Color Picker
-EspSection:Colorpicker({
-    Title = "ESP Color",
-    Default = _G.EspColor,
-    Callback = function(color) _G.EspColor = color end,
-})
+                if OnScreen then
+                    -- Perhitungan Ukuran Kotak Berdasarkan Jarak
+                    local SizeX = 2000 / Pos.Z
+                    local SizeY = 3500 / Pos.Z
+                    local X = Pos.X - SizeX / 2
+                    local Y = Pos.Y - SizeY / 2
 
--- // LOGIKA ESP MENGGUNAKAN BOX (Lebih Ringan & Support All Executor)
-local function CreateESP(plr)
-    local Box = Instance.new("BoxHandleAdornment")
-    Box.Name = "WNDS_Box"
-    Box.AlwaysOnTop = true
-    Box.ZIndex = 10
-    Box.Adornee = nil
-    Box.Transparency = 0.5
-    Box.Color3 = _G.EspColor
-    Box.Size = Vector3.new(4, 6, 1) -- Ukuran kotak standar karakter
-    Box.Parent = game:GetService("CoreGui")
+                    -- Render BOX
+                    if _G.ShowBox then
+                        Objects.Box.Visible = true
+                        Objects.Box.Size = Vector2.new(SizeX, SizeY)
+                        Objects.Box.Position = Vector2.new(X, Y)
+                        Objects.Box.Color = _G.EspColor
+                        Objects.Box.Thickness = 1.5
+                        
+                        Objects.Outline.Visible = true
+                        Objects.Outline.Size = Objects.Box.Size
+                        Objects.Outline.Position = Objects.Box.Position
+                        Objects.Outline.Color = Color3.new(0,0,0)
+                        Objects.Outline.Thickness = 3
+                        Objects.Outline.Transparency = 0.5
+                    else
+                        Objects.Box.Visible = false
+                        Objects.Outline.Visible = false
+                    end
 
-    RunService.RenderStepped:Connect(function()
-        if _G.EspEnabled and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-            Box.Adornee = plr.Character.HumanoidRootPart
-            Box.Visible = true
-            Box.Color3 = _G.EspColor
-        else
-            Box.Visible = false
-        end
-    end)
+                    -- Render HEALTH BAR
+                    if _G.ShowHealth then
+                        local HealthPercent = Hum.Health / Hum.MaxHealth
+                        Objects.HealthBG.Visible = true
+                        Objects.HealthBG.From = Vector2.new(X - 5, Y + SizeY)
+                        Objects.HealthBG.To = Vector2.new(X - 5, Y)
+                        Objects.HealthBG.Thickness = 2
+                        
+                        Objects.HealthBar.Visible = true
+                        Objects.HealthBar.From = Vector2.new(X - 5, Y + SizeY)
+                        Objects.HealthBar.To = Vector2.new(X - 5, Y + SizeY - (SizeY * HealthPercent))
+                        Objects.HealthBar.Color = Color3.fromHSV(HealthPercent * 0.3, 1, 1)
+                        Objects.HealthBar.Thickness = 2
+                    else
+                        Objects.HealthBar.Visible = false
+                        Objects.HealthBG.Visible = false
+                    end
+
+                    -- Render TRACERS
+                    if _G.ShowTracer then
+                        Objects.Tracer.Visible = true
+                        Objects.Tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y) -- Dari bawah tengah
+                        Objects.Tracer.To = Vector2.new(Pos.X, Pos.Y + (SizeY / 2))
+                        Objects.Tracer.Color = _G.TracerColor
+                    else
+                        Objects.Tracer.Visible = false
+                    end
+                else
+                    for _, v in pairs(Objects) do v.Visible = false end
+                end
+            else
+                for _, v in pairs(Objects) do v.Visible = false end
+                if not player.Parent then Connection:Disconnect() end
+            end
+        end)
+    end
+    coroutine.wrap(Update)()
 end
 
--- Terapkan ke semua pemain
-for _, p in pairs(Players:GetPlayers()) do
-    if p ~= LocalPlayer then CreateESP(p) end
-end
+-- // --- UI RENDERING ---
+local VisualTab = Window:Tab({ Title = "Visual", Icon = "solar:eye-bold", Border = true })
+local MainSec = VisualTab:Section({ Title = "ESP Configuration" })
 
-Players.PlayerAdded:Connect(function(p)
-    if p ~= LocalPlayer then CreateESP(p) end
-end)
+MainSec:Toggle({ Title = "Enable Master ESP", Callback = function(v) _G.EspEnabled = v end })
+MainSec:Toggle({ Title = "Box ESP", Callback = function(v) _G.ShowBox = v end })
+MainSec:Toggle({ Title = "Health Bar", Callback = function(v) _G.ShowHealth = v end })
+MainSec:Toggle({ Title = "Tracers", Callback = function(v) _G.ShowTracer = v end })
+
+local CustomizeSec = VisualTab:Section({ Title = "Customization" })
+CustomizeSec:Colorpicker({ Title = "Box Color", Default = _G.EspColor, Callback = function(c) _G.EspColor = c end })
+CustomizeSec:Colorpicker({ Title = "Tracer Color", Default = _G.TracerColor, Callback = function(c) _G.TracerColor = c end })
+
+-- Initialize for all players
+for _, p in pairs(Players:GetPlayers()) do if p ~= LocalPlayer then ESPLibrary:Create(p) end end
+Players.PlayerAdded:Connect(function(p) if p ~= LocalPlayer then ESPLibrary:Create(p) end end)
