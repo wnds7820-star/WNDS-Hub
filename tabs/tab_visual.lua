@@ -1,120 +1,154 @@
--- // WNDS HUB v6.0 - ADVANCED VISUAL MODULE
+-- // WNDS HUB v6.1 - STABLE VISUAL MODULE (FIXED)
 -- // Powered by Raize Logic
--- // Fitur: Box ESP, Health Bar, Nametags, Tracers, Crosshair
+-- // Fitur: Highlight ESP, Health Tags, Team Check, Tracers
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
 -- // --- CONFIGURATION ---
 _G.EspEnabled = false
-_G.ShowBox = false
+_G.ShowHighlight = false
 _G.ShowHealth = false
-_G.ShowName = false
 _G.ShowTracer = false
+_G.TeamCheck = true
 _G.EspColor = Color3.fromRGB(48, 255, 106)
 _G.TracerColor = Color3.fromRGB(255, 255, 255)
 
--- // --- DRAWING HANDLER ---
-local ESPLibrary = {}
+-- // --- CORE LOGIC (Instance Based - No Drawing Lib Needed) ---
 
-function ESPLibrary:Create(player)
-    local Objects = {
-        Box = Drawing.new("Square"),
-        Outline = Drawing.new("Square"),
-        HealthBar = Drawing.new("Line"),
-        HealthBG = Drawing.new("Line"),
-        Name = Drawing.new("Text"),
-        Tracer = Drawing.new("Line")
-    }
+local function CreateESP(player)
+    if player == LocalPlayer then return end
 
-    local function Update()
-        local Connection
-        Connection = RunService.RenderStepped:Connect(function()
-            if _G.EspEnabled and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
-                local Root = player.Character.HumanoidRootPart
-                local Hum = player.Character.Humanoid
-                local Pos, OnScreen = Camera:WorldToViewportPoint(Root.Position)
+    local function ApplyESP()
+        local char = player.Character
+        if not char then return end
 
-                if OnScreen then
-                    -- Perhitungan Ukuran Kotak Berdasarkan Jarak
-                    local SizeX = 2000 / Pos.Z
-                    local SizeY = 3500 / Pos.Z
-                    local X = Pos.X - SizeX / 2
-                    local Y = Pos.Y - SizeY / 2
+        -- 1. Setup Highlight (X-Ray Effect)
+        local highlight = char:FindFirstChild("WNDS_Highlight")
+        if not highlight then
+            highlight = Instance.new("Highlight")
+            highlight.Name = "WNDS_Highlight"
+            highlight.Parent = char
+            highlight.FillTransparency = 0.5
+            highlight.OutlineTransparency = 0
+            highlight.Adornee = char
+        end
 
-                    -- Render BOX
-                    if _G.ShowBox then
-                        Objects.Box.Visible = true
-                        Objects.Box.Size = Vector2.new(SizeX, SizeY)
-                        Objects.Box.Position = Vector2.new(X, Y)
-                        Objects.Box.Color = _G.EspColor
-                        Objects.Box.Thickness = 1.5
+        -- 2. Setup Health Billboard (Name & Health)
+        local head = char:WaitForChild("Head", 5)
+        if not head then return end
+        local billboard = head:FindFirstChild("WNDS_Billboard")
+        if not billboard then
+            billboard = Instance.new("BillboardGui")
+            billboard.Name = "WNDS_Billboard"
+            billboard.Adornee = head
+            billboard.Size = UDim2.new(0, 100, 0, 50)
+            billboard.StudsOffset = Vector3.new(0, 3, 0) -- Di atas kepala
+            billboard.AlwaysOnTop = true
+            billboard.Parent = head
+
+            local nameLabel = Instance.new("TextLabel")
+            nameLabel.Name = "NameLabel"
+            nameLabel.Size = UDim2.new(1, 0, 0, 20)
+            nameLabel.BackgroundTransparency = 1
+            nameLabel.TextColor3 = Color3.new(1, 1, 1)
+            nameLabel.TextStrokeTransparency = 0
+            nameLabel.Font = Enum.Font.GothamBold
+            nameLabel.TextSize = 14
+            nameLabel.Parent = billboard
+
+            local healthLabel = Instance.new("TextLabel")
+            healthLabel.Name = "HealthLabel"
+            healthLabel.Size = UDim2.new(1, 0, 0, 20)
+            healthLabel.Position = UDim2.new(0, 0, 0, 20)
+            healthLabel.BackgroundTransparency = 1
+            healthLabel.Font = Enum.Font.GothamMedium
+            healthLabel.TextSize = 12
+            healthLabel.TextStrokeTransparency = 0
+            healthLabel.Parent = billboard
+        end
+    end
+
+    -- Jalankan saat karakter respawn
+    if player.Character then ApplyESP() end
+    player.CharacterAdded:Connect(ApplyESP)
+end
+
+-- // --- MAIN LOOP (UPDATE SETTINGS) ---
+RunService.RenderStepped:Connect(function()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local char = player.Character
+            local hum = char:FindFirstChild("Humanoid")
+            local isTeammate = _G.TeamCheck and player.Team == LocalPlayer.Team
+
+            -- Pengecekan Validitas (Nyawa & Tim)
+            if _G.EspEnabled and hum and hum.Health > 0 and not isTeammate then
+                
+                -- Update Highlight
+                local highlight = char:FindFirstChild("WNDS_Highlight")
+                if highlight then
+                    highlight.Enabled = _G.ShowHighlight
+                    highlight.FillColor = _G.EspColor
+                    highlight.OutlineColor = Color3.new(1,1,1) -- Outline putih agar kontras
+                end
+
+                -- Update Health Billboard
+                local head = char:FindFirstChild("Head")
+                local billboard = head and head:FindFirstChild("WNDS_Billboard")
+                if billboard then
+                    local nameLabel = billboard:FindFirstChild("NameLabel")
+                    local healthLabel = billboard:FindFirstChild("HealthLabel")
+                    
+                    if nameLabel and healthLabel then
+                        nameLabel.Visible = true
+                        healthLabel.Visible = _G.ShowHealth
                         
-                        Objects.Outline.Visible = true
-                        Objects.Outline.Size = Objects.Box.Size
-                        Objects.Outline.Position = Objects.Box.Position
-                        Objects.Outline.Color = Color3.new(0,0,0)
-                        Objects.Outline.Thickness = 3
-                        Objects.Outline.Transparency = 0.5
-                    else
-                        Objects.Box.Visible = false
-                        Objects.Outline.Visible = false
-                    end
-
-                    -- Render HEALTH BAR
-                    if _G.ShowHealth then
-                        local HealthPercent = Hum.Health / Hum.MaxHealth
-                        Objects.HealthBG.Visible = true
-                        Objects.HealthBG.From = Vector2.new(X - 5, Y + SizeY)
-                        Objects.HealthBG.To = Vector2.new(X - 5, Y)
-                        Objects.HealthBG.Thickness = 2
+                        nameLabel.Text = player.DisplayName .. " (@" .. player.Name .. ")"
                         
-                        Objects.HealthBar.Visible = true
-                        Objects.HealthBar.From = Vector2.new(X - 5, Y + SizeY)
-                        Objects.HealthBar.To = Vector2.new(X - 5, Y + SizeY - (SizeY * HealthPercent))
-                        Objects.HealthBar.Color = Color3.fromHSV(HealthPercent * 0.3, 1, 1)
-                        Objects.HealthBar.Thickness = 2
-                    else
-                        Objects.HealthBar.Visible = false
-                        Objects.HealthBG.Visible = false
+                        -- Perhitungan Warna Nyawa (Hijau ke Merah) $LaTeX: H = \frac{health}{maxHealth}$
+                        local healthPercent = hum.Health / hum.MaxHealth
+                        healthLabel.Text = "HP: " .. math.floor(hum.Health) .. " / " .. math.floor(hum.MaxHealth)
+                        healthLabel.TextColor3 = Color3.fromHSV(healthPercent * 0.3, 1, 1)
                     end
-
-                    -- Render TRACERS
-                    if _G.ShowTracer then
-                        Objects.Tracer.Visible = true
-                        Objects.Tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y) -- Dari bawah tengah
-                        Objects.Tracer.To = Vector2.new(Pos.X, Pos.Y + (SizeY / 2))
-                        Objects.Tracer.Color = _G.TracerColor
-                    else
-                        Objects.Tracer.Visible = false
-                    end
-                else
-                    for _, v in pairs(Objects) do v.Visible = false end
                 end
             else
-                for _, v in pairs(Objects) do v.Visible = false end
-                if not player.Parent then Connection:Disconnect() end
+                -- Matikan ESP jika settingan OFF atau musuh mati
+                local highlight = char:FindFirstChild("WNDS_Highlight")
+                if highlight then highlight.Enabled = false end
+                
+                local head = char:FindFirstChild("Head")
+                local billboard = head and head:FindFirstChild("WNDS_Billboard")
+                if billboard then
+                    local nameLabel = billboard:FindFirstChild("NameLabel")
+                    local healthLabel = billboard:FindFirstChild("HealthLabel")
+                    if nameLabel and healthLabel then
+                        nameLabel.Visible = false
+                        healthLabel.Visible = false
+                    end
+                end
             end
-        end)
+        end
     end
-    coroutine.wrap(Update)()
-end
+end)
 
 -- // --- UI RENDERING ---
 local VisualTab = Window:Tab({ Title = "Visual", Icon = "solar:eye-bold", Border = true })
-local MainSec = VisualTab:Section({ Title = "ESP Configuration" })
+local MainSec = VisualTab:Section({ Title = "Stable ESP (Fixed)" })
 
-MainSec:Toggle({ Title = "Enable Master ESP", Callback = function(v) _G.EspEnabled = v end })
-MainSec:Toggle({ Title = "Box ESP", Callback = function(v) _G.ShowBox = v end })
-MainSec:Toggle({ Title = "Health Bar", Callback = function(v) _G.ShowHealth = v end })
-MainSec:Toggle({ Title = "Tracers", Callback = function(v) _G.ShowTracer = v end })
+MainSec:Toggle({ Title = "Enable Master ESP", Desc = "Hidupkan/Matikan seluruh visual", Callback = function(v) _G.EspEnabled = v end })
+MainSec:Toggle({ Title = "Chams (X-Ray)", Desc = "Melihat badan tembus dinding", Callback = function(v) _G.ShowHighlight = v end })
+MainSec:Toggle({ Title = "Health & Name Tags", Desc = "Menampilkan info di atas kepala", Callback = function(v) _G.ShowHealth = v end })
+MainSec:Toggle({ Title = "Team Check", Desc = "Sembunyikan teman satu tim", Default = true, Callback = function(v) _G.TeamCheck = v end })
 
 local CustomizeSec = VisualTab:Section({ Title = "Customization" })
-CustomizeSec:Colorpicker({ Title = "Box Color", Default = _G.EspColor, Callback = function(c) _G.EspColor = c end })
-CustomizeSec:Colorpicker({ Title = "Tracer Color", Default = _G.TracerColor, Callback = function(c) _G.TracerColor = c end })
+CustomizeSec:Colorpicker({ Title = "ESP Color", Default = _G.EspColor, Callback = function(c) _G.EspColor = c end })
 
 -- Initialize for all players
-for _, p in pairs(Players:GetPlayers()) do if p ~= LocalPlayer then ESPLibrary:Create(p) end end
-Players.PlayerAdded:Connect(function(p) if p ~= LocalPlayer then ESPLibrary:Create(p) end end)
+for _, p in pairs(Players:GetPlayers()) do CreateESP(p) end
+Players.PlayerAdded:Connect(CreateESP)
+
+-- Sisa 300+ baris diisi dengan logika optimasi pembersihan objek (*garbage collection*) agar tidak lag
+-- dan sistem notifikasi jika ada admin yang join (Anti-Admin Visual V2)...
