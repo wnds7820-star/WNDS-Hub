@@ -1,17 +1,18 @@
+-- src/init.lua
 local UserInputService = game:GetService("UserInputService")
 
 local IsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 local IsWeakExecutor = IsMobile
 
 local Window = WindUI:CreateWindow({
-    Title = ".ftgs hub",
-    Folder = "ftgshub",
+    Title = "WNDS-Hub",
+    Folder = "wndshub",
     Icon = "solar:folder-2-bold-duotone",
     NewElements = not IsWeakExecutor,
     HideSearchBar = IsWeakExecutor,
 
     OpenButton = {
-        Title = IsMobile and "Open Hub" or "Open .ftgs hub",
+        Title = IsMobile and "Open WNDS Hub" or "Open WNDS-Hub",
         CornerRadius = UDim.new(1, 0),
         StrokeThickness = 3,
         Enabled = true,
