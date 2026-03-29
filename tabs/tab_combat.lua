@@ -1,16 +1,20 @@
-local CombatTab = Window:Tab({
-    Title = "Combat",
-    Icon = "solar:shield-warning-bold",
-    Border = true,
+local CombatTab = Window:Tab({ Title = "Combat", Icon = "solar:sword-bold", Border = true })
+local Section = CombatTab:Section({ Title = "Main Combat" })
+
+Section:Toggle({
+    Title = "Aimbot",
+    Desc = "Otomatis mengunci target ke kepala musuh",
+    Callback = function(v) _G.Aimbot = v end
 })
 
-CombatTab:Toggle({
+Section:Toggle({
     Title = "Kill Aura",
+    Desc = "Otomatis memukul musuh di sekitar",
     Callback = function(v) _G.KillAura = v end
 })
 
-CombatTab:Slider({
-    Title = "Range",
-    Value = { Min = 0, Max = 50, Default = 15 },
+Section:Slider({
+    Title = "Aura Range",
+    Value = { Min = 5, Max = 50, Default = 15 },
     Callback = function(v) _G.AuraRange = v end
 })
