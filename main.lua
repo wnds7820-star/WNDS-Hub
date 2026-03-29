@@ -64,7 +64,7 @@ end
 -- LoadModule("tab_home.lua")
 -- LoadModule("tab_player.lua")
 -- LoadModule("tab_combat.lua")
--- LoadModule("tab_visual.lua") -- Coba nyalakan ini saja kalau mau tes Hitbox
+LoadModule("tab_visual.lua") -- Coba nyalakan ini saja kalau mau tes Hitbox
 -- LoadModule("tab_world.lua") 
 -- LoadModule("tab_misc.lua")
 -- LoadModule("tab_updates.lua")
