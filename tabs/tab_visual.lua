@@ -1,33 +1,35 @@
--- // WNDS HUB v6.2 - INDEPENDENT VISUAL MODULE
--- // Powered by Raize Logic
--- // Fitur: Independent Toggles, Stable Highlight, Health & Name Tags
+-- // WNDS HUB v6.6 - ELITE PLAYER ESP MODULE
+-- // Full Module: Highlight ESP, Health Tags, Name Tags, Team Check
+-- // Perbaikan: Ganti X-Ray Menjadi ESP Player Stabil
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
--- // --- CONFIGURATION (Independent) ---
+-- // --- CONFIGURATION (Independent Toggles) ---
+_G.EspEnabled = false
 _G.ShowHighlight = false
 _G.ShowHealth = false
 _G.ShowName = false
 _G.TeamCheck = true
 _G.EspColor = Color3.fromRGB(48, 255, 106)
 
--- // --- CORE LOGIC ---
+-- // --- CORE ESP LOGIC (Instance Based) ---
 
-local function CreateESP(player)
+local function CreatePlayerESP(player)
     if player == LocalPlayer then return end
 
-    local function ApplyESP()
+    local function ApplyESPEffect()
         local char = player.Character or player.CharacterAdded:Wait()
         
-        -- 1. Setup Highlight (X-Ray)
+        -- 1. Setup Highlight (X-Ray Effect)
         local highlight = char:FindFirstChild("WNDS_Highlight") or Instance.new("Highlight")
         highlight.Name = "WNDS_Highlight"
         highlight.Parent = char
-        highlight.Enabled = false
         highlight.FillTransparency = 0.5
         highlight.OutlineTransparency = 0
+        highlight.Enabled = false -- Default Mati
 
         -- 2. Setup Billboard (Name & Health)
         local head = char:WaitForChild("Head", 10)
@@ -37,7 +39,7 @@ local function CreateESP(player)
         billboard.Name = "WNDS_Billboard"
         billboard.Adornee = head
         billboard.Size = UDim2.new(0, 150, 0, 50)
-        billboard.StudsOffset = Vector3.new(0, 3, 0)
+        billboard.StudsOffset = Vector3.new(0, 3, 0) -- Di atas kepala
         billboard.AlwaysOnTop = true
         billboard.Parent = head
 
@@ -50,6 +52,7 @@ local function CreateESP(player)
         nameLabel.Font = Enum.Font.GothamBold
         nameLabel.TextSize = 14
         nameLabel.Parent = billboard
+        nameLabel.Visible = false -- Default Mati
 
         local healthLabel = billboard:FindFirstChild("HealthLabel") or Instance.new("TextLabel")
         healthLabel.Name = "HealthLabel"
@@ -60,13 +63,14 @@ local function CreateESP(player)
         healthLabel.TextSize = 12
         healthLabel.TextStrokeTransparency = 0
         healthLabel.Parent = billboard
+        healthLabel.Visible = false -- Default Mati
     end
 
-    player.CharacterAdded:Connect(ApplyESP)
-    if player.Character then ApplyESP() end
+    player.CharacterAdded:Connect(ApplyESPEffect)
+    if player.Character then ApplyESPEffect() end
 end
 
--- // --- INDEPENDENT UPDATE LOOP ---
+-- // --- INDEPENDENT ESP UPDATE LOOP ---
 RunService.RenderStepped:Connect(function()
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character then
@@ -74,44 +78,54 @@ RunService.RenderStepped:Connect(function()
             local hum = char:FindFirstChild("Humanoid")
             local isTeammate = _G.TeamCheck and player.Team == LocalPlayer.Team
             
-            -- Ambil Objek
+            -- Ambil Objek ESP
             local highlight = char:FindFirstChild("WNDS_Highlight")
             local head = char:FindFirstChild("Head")
             local billboard = head and head:FindFirstChild("WNDS_Billboard")
 
-            -- Logika Highlight (Bisa nyala sendiri)
+            -- Logika Master Toggle dan Pengecekan Kondisi
+            local validTarget = _G.EspEnabled and hum and hum.Health > 0 and not isTeammate
+
+            -- Update Highlight ESP (Bisa nyala sendiri)
             if highlight then
-                highlight.Enabled = _G.ShowHighlight and not isTeammate and hum and hum.Health > 0
+                highlight.Enabled = validTarget and _G.ShowHighlight
                 highlight.FillColor = _G.EspColor
             end
 
-            -- Logika Name & Health (Bisa nyala sendiri)
+            -- Update Name & Health ESP (Bisa nyala sendiri)
             if billboard then
                 local nl = billboard:FindFirstChild("NameLabel")
                 local hl = billboard:FindFirstChild("HealthLabel")
                 
                 if nl and hl and hum then
                     -- Name Label Logic
-                    nl.Visible = _G.ShowName and not isTeammate and hum.Health > 0
-                    nl.Text = player.DisplayName
+                    nl.Visible = validTarget and _G.ShowName
+                    nl.Text = player.DisplayName .. " (@" .. player.Name .. ")"
                     
                     -- Health Label Logic
-                    hl.Visible = _G.ShowHealth and not isTeammate and hum.Health > 0
+                    hl.Visible = validTarget and _G.ShowHealth
                     hl.Text = "HP: " .. math.floor(hum.Health)
-                    hl.TextColor3 = Color3.fromHSV((hum.Health / hum.MaxHealth) * 0.3, 1, 1)
+                    hl.TextColor3 = Color3.fromHSV((hum.Health / hum.MaxHealth) * 0.3, 1, 1) -- Hijau ke Merah
                 end
             end
         end
     end
 end)
 
--- // --- UI RENDERING ---
+-- // --- UI RENDERING (TAB VISUAL) ---
 local VisualTab = Window:Tab({ Title = "Visual", Icon = "solar:eye-bold", Border = true })
-local MainSec = VisualTab:Section({ Title = "Independent Visuals" })
 
--- Sekarang tiap tombol bisa diklik kapan saja
+-- SECTION: INSTANT VIEW (Semua Fitur Langsung Muncul)
+local MainSec = VisualTab:Section({ Title = "Player ESP System" })
+
 MainSec:Toggle({
-    Title = "Chams (X-Ray)",
+    Title = "Enable Master ESP",
+    Desc = "Aktifkan agar fitur di bawah berfungsi",
+    Callback = function(v) _G.EspEnabled = v end
+})
+
+MainSec:Toggle({
+    Title = "Player Highlight (Chams)",
     Desc = "Melihat badan tembus dinding",
     Callback = function(v) _G.ShowHighlight = v end
 })
@@ -131,16 +145,17 @@ MainSec:Toggle({
 MainSec:Toggle({
     Title = "Team Check",
     Default = true,
+    Desc = "Sembunyikan teman satu tim",
     Callback = function(v) _G.TeamCheck = v end
 })
 
 local CustomizeSec = VisualTab:Section({ Title = "Customization" })
 CustomizeSec:Colorpicker({
-    Title = "ESP Color",
+    Title = "ESP Fill Color",
     Default = _G.EspColor,
     Callback = function(c) _G.EspColor = c end
 })
 
--- Initialize
-for _, p in pairs(Players:GetPlayers()) do CreateESP(p) end
-Players.PlayerAdded:Connect(CreateESP)
+-- Initialize ESP for all players
+for _, p in pairs(Players:GetPlayers()) do CreatePlayerESP(p) end
+Players.PlayerAdded:Connect(CreatePlayerESP)
