@@ -10,7 +10,7 @@ if not success or not WindUI then
 end
 
 local function loadModule(path)
-    local url = "https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/main/" .. path
+    local url = "https://raw.githubusercontent.com/wnds7820-star/WNDS-Hub/refs/heads/main/main.lua" .. path
     local success, code = pcall(game.HttpGet, game, url)
     if not success then
         error("❌ Gagal load: " .. path)
