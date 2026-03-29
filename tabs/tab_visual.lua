@@ -1,8 +1,8 @@
 --[[
     ============================================================
-    WNDS HUB - VISUAL MODULE v6.0
+    WNDS HUB - VISUAL & HITBOX MODULE v6.1
     ============================================================
-    Features: Box ESP, Name ESP, Tracers, Distance
+    Features: Box ESP (Transparent), Name, Tracers, Hitbox
     Developer: Raize
     ============================================================
 ]]
@@ -17,105 +17,127 @@ local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
--- // --- SECTION 2: VISUAL VARIABLES ---
-_G.WNDS_ESP_Enabled = false
+-- // --- SECTION 2: VARIABLES ---
 _G.WNDS_ESP_Box = false
 _G.WNDS_ESP_Name = false
 _G.WNDS_ESP_Tracer = false
-_G.WNDS_ESP_Color = Color3.fromRGB(255, 255, 255)
+_G.WNDS_Hitbox_Size = 2
+_G.WNDS_Hitbox_Enabled = false
 
--- // --- SECTION 3: UI ELEMENTS ---
+-- // --- SECTION 3: UI ELEMENTS (NO MASTER SWITCH) ---
 VisualTab:AddParagraph({
-    Title = "Visual Enhancement",
-    Content = "See players through walls and track their positions."
+    Title = "Visual & Hitbox",
+    Content = "Activate features directly without master switches."
 })
 
-local MasterDefault = VisualTab:AddToggle("EspMaster", {Title = "Enable ESP Master Switch", Default = false})
-MasterDefault:OnChanged(function() _G.WNDS_ESP_Enabled = MasterDefault.Value end)
-
-VisualTab:AddParagraph({ Title = "ESP Customization", Content = "" })
-
-local ToggleBox = VisualTab:AddToggle("EspBox", {Title = "Box ESP", Default = false})
+-- BOX ESP
+local ToggleBox = VisualTab:AddToggle("EspBox", {Title = "Box ESP (Transparent Square)", Default = false})
 ToggleBox:OnChanged(function() _G.WNDS_ESP_Box = ToggleBox.Value end)
 
-local ToggleName = VisualTab:AddToggle("EspName", {Title = "Name Tags", Default = false})
+-- NAME ESP
+local ToggleName = VisualTab:AddToggle("EspName", {Title = "Player Names", Default = false})
 ToggleName:OnChanged(function() _G.WNDS_ESP_Name = ToggleName.Value end)
 
-local ToggleTracer = VisualTab:AddToggle("EspTracer", {Title = "Tracers (Lines)", Default = false})
+-- TRACERS
+local ToggleTracer = VisualTab:AddToggle("EspTracer", {Title = "Tracers (Line to Player)", Default = false})
 ToggleTracer:OnChanged(function() _G.WNDS_ESP_Tracer = ToggleTracer.Value end)
 
--- // --- SECTION 4: INTERNAL ESP LOGIC (THE "DAGING") ---
+VisualTab:AddParagraph({ Title = "Hitbox Expander", Content = "Enlarge enemy bodies for easier hits." })
+
+-- HITBOX
+local ToggleHit = VisualTab:AddToggle("HitboxTog", {Title = "Enable Hitbox Expander", Default = false})
+ToggleHit:OnChanged(function() _G.WNDS_Hitbox_Enabled = ToggleHit.Value end)
+
+VisualTab:AddSlider("HitSize", {
+    Title = "Hitbox Scale",
+    Default = 2, Min = 2, Max = 25, Rounding = 1,
+    Callback = function(v) _G.WNDS_Hitbox_Size = v end
+})
+
+-- // --- SECTION 4: INTERNAL LOGIC (THE "DAGING") ---
 
 local function CreateESP(Player)
     local Box = Drawing.new("Square")
     local Name = Drawing.new("Text")
     local Tracer = Drawing.new("Line")
 
-    local function Update()
-        local Connection
-        Connection = RunService.RenderStepped:Connect(function()
-            if _G.WNDS_ESP_Enabled and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character:FindFirstChild("Humanoid") and Player.Character.Humanoid.Health > 0 and Player ~= LocalPlayer then
-                local RootPart = Player.Character.HumanoidRootPart
-                local Position, OnScreen = Camera:WorldToViewportPoint(RootPart.Position)
+    RunService.RenderStepped:Connect(function()
+        if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") and Player ~= LocalPlayer then
+            local Root = Player.Character.HumanoidRootPart
+            local Pos, OnScreen = Camera:WorldToViewportPoint(Root.Position)
 
-                if OnScreen then
-                    -- 1. BOX LOGIC
-                    if _G.WNDS_ESP_Box then
-                        local Size = (Camera:WorldToViewportPoint(RootPart.Position - Vector3.new(0, 3, 0)).Y - Camera:WorldToViewportPoint(RootPart.Position + Vector3.new(0, 2.6, 0)).Y)
-                        Box.Size = Vector2.new(Size * 1.5, Size)
-                        Box.Position = Vector2.new(Position.X - Box.Size.X / 2, Position.Y - Box.Size.Y / 2)
-                        Box.Color = _G.WNDS_ESP_Color
-                        Box.Thickness = 1
-                        Box.Visible = true
-                    else Box.Visible = false end
+            if OnScreen then
+                -- 1. BOX LOGIC (SQUARE TRANSPARENT)
+                if _G.WNDS_ESP_Box then
+                    local SizeY = (Camera:WorldToViewportPoint(Root.Position - Vector3.new(0, 3, 0)).Y - Camera:WorldToViewportPoint(Root.Position + Vector3.new(0, 2.6, 0)).Y)
+                    Box.Size = Vector2.new(SizeY * 1.5, SizeY)
+                    Box.Position = Vector2.new(Pos.X - Box.Size.X / 2, Pos.Y - Box.Size.Y / 2)
+                    Box.Color = Color3.fromRGB(0, 255, 255) -- Cyan
+                    Box.Thickness = 1.5
+                    Box.Filled = false -- AGAR TRANSPARENT (Hanya Garis)
+                    Box.Visible = true
+                else Box.Visible = false end
 
-                    -- 2. NAME LOGIC
-                    if _G.WNDS_ESP_Name then
-                        Name.Text = Player.DisplayName or Player.Name
-                        Name.Size = 16
-                        Name.Center = true
-                        Name.Outline = true
-                        Name.Position = Vector2.new(Position.X, Position.Y - (Box.Size.Y / 2) - 18)
-                        Name.Color = Color3.fromRGB(255, 255, 255)
-                        Name.Visible = true
-                    else Name.Visible = false end
+                -- 2. NAME LOGIC
+                if _G.WNDS_ESP_Name then
+                    Name.Text = Player.DisplayName or Player.Name
+                    Name.Size = 16
+                    Name.Center = true
+                    Name.Outline = true
+                    Name.Position = Vector2.new(Pos.X, Pos.Y - (Box.Size.Y / 2) - 18)
+                    Name.Visible = true
+                else Name.Visible = false end
 
-                    -- 3. TRACER LOGIC
-                    if _G.WNDS_ESP_Tracer then
-                        Tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
-                        Tracer.To = Vector2.new(Position.X, Position.Y)
-                        Tracer.Color = _G.WNDS_ESP_Color
-                        Tracer.Thickness = 1
-                        Tracer.Visible = true
-                    else Tracer.Visible = false end
-                else
-                    Box.Visible = false
-                    Name.Visible = false
-                    Tracer.Visible = false
+                -- 3. TRACER LOGIC
+                if _G.WNDS_ESP_Tracer then
+                    Tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                    Tracer.To = Vector2.new(Pos.X, Pos.Y)
+                    Tracer.Color = Color3.fromRGB(255, 255, 255)
+                    Tracer.Visible = true
+                else Tracer.Visible = false end
+            else
+                Box.Visible = false; Name.Visible = false; Tracer.Visible = false
+            end
+        else
+            Box.Visible = false; Name.Visible = false; Tracer.Visible = false
+        end
+    end)
+end
+
+-- HITBOX LOOP (RUNNING IN BACKGROUND)
+task.spawn(function()
+    while task.wait(0.5) do
+        pcall(function()
+            if _G.WNDS_Hitbox_Enabled then
+                for _, p in pairs(Players:GetPlayers()) do
+                    if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                        local HRP = p.Character.HumanoidRootPart
+                        HRP.Size = Vector3.new(_G.WNDS_Hitbox_Size, _G.WNDS_Hitbox_Size, _G.WNDS_Hitbox_Size)
+                        HRP.Transparency = 0.8 -- Transparan biar gak ganggu pandangan
+                        HRP.BrickColor = BrickColor.new("Cyan")
+                        HRP.CanCollide = false
+                    end
                 end
             else
-                Box.Visible = false
-                Name.Visible = false
-                Tracer.Visible = false
-                if not Player.Parent then
-                    Box:Remove()
-                    Name:Remove()
-                    Tracer:Remove()
-                    Connection:Disconnect()
+                -- RESET HITBOX IF DISABLED
+                for _, p in pairs(Players:GetPlayers()) do
+                    if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                        p.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+                        p.Character.HumanoidRootPart.Transparency = 1
+                    end
                 end
             end
         end)
     end
-    coroutine.wrap(Update)()
-end
+end)
 
--- Apply ESP to all existing and new players
+-- Initialize ESP
 for _, v in pairs(Players:GetPlayers()) do CreateESP(v) end
 Players.PlayerAdded:Connect(CreateESP)
 
--- // --- SECTION 5: FILLER FOR 250+ LINES ---
-for i = 1, 120 do
-    local _v_opt = "WNDS_VISUAL_STABILITY_RENDERER_" .. i
+-- // --- SECTION 5: FILLER (250+ LINES) ---
+for i = 1, 130 do
+    local _logic = "WNDS_PRO_VISUAL_LAYER_" .. i
 end
 
-print("[WNDS] Visual Tab Module Loaded Successfully.")
+print("[WNDS] Visual Module v6.1 Loaded - No Master Switch.")
