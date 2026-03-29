@@ -1,133 +1,319 @@
--- // WNDS HUB v6.0 - FLUENT EDITION
--- // Developer: Raize
--- // Standard: Ultra Modern Glassmorphism
+local httpService = game:GetService("HttpService")
 
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+local SaveManager = {} do
+	SaveManager.Folder = "FluentSettings"
+	SaveManager.Ignore = {}
+	SaveManager.Parser = {
+		Toggle = {
+			Save = function(idx, object) 
+				return { type = "Toggle", idx = idx, value = object.Value } 
+			end,
+			Load = function(idx, data)
+				if SaveManager.Options[idx] then 
+					SaveManager.Options[idx]:SetValue(data.value)
+				end
+			end,
+		},
+		Slider = {
+			Save = function(idx, object)
+				return { type = "Slider", idx = idx, value = tostring(object.Value) }
+			end,
+			Load = function(idx, data)
+				if SaveManager.Options[idx] then 
+					SaveManager.Options[idx]:SetValue(data.value)
+				end
+			end,
+		},
+		Dropdown = {
+			Save = function(idx, object)
+				return { type = "Dropdown", idx = idx, value = object.Value, mutli = object.Multi }
+			end,
+			Load = function(idx, data)
+				if SaveManager.Options[idx] then 
+					SaveManager.Options[idx]:SetValue(data.value)
+				end
+			end,
+		},
+		Colorpicker = {
+			Save = function(idx, object)
+				return { type = "Colorpicker", idx = idx, value = object.Value:ToHex(), transparency = object.Transparency }
+			end,
+			Load = function(idx, data)
+				if SaveManager.Options[idx] then 
+					SaveManager.Options[idx]:SetValueRGB(Color3.fromHex(data.value), data.transparency)
+				end
+			end,
+		},
+		Keybind = {
+			Save = function(idx, object)
+				return { type = "Keybind", idx = idx, mode = object.Mode, key = object.Value }
+			end,
+			Load = function(idx, data)
+				if SaveManager.Options[idx] then 
+					SaveManager.Options[idx]:SetValue(data.key, data.mode)
+				end
+			end,
+		},
 
--- // --- SAFE IDENTITY CHECK ---
-local function GetExecutor()
-    local s, r = pcall(function() return identifyexecutor() end)
-    return s and r or "Mobile/Unknown"
+		Input = {
+			Save = function(idx, object)
+				return { type = "Input", idx = idx, text = object.Value }
+			end,
+			Load = function(idx, data)
+				if SaveManager.Options[idx] and type(data.text) == "string" then
+					SaveManager.Options[idx]:SetValue(data.text)
+				end
+			end,
+		},
+	}
+
+	function SaveManager:SetIgnoreIndexes(list)
+		for _, key in next, list do
+			self.Ignore[key] = true
+		end
+	end
+
+	function SaveManager:SetFolder(folder)
+		self.Folder = folder;
+		self:BuildFolderTree()
+	end
+
+	function SaveManager:Save(name)
+		if (not name) then
+			return false, "no config file is selected"
+		end
+
+		local fullPath = self.Folder .. "/settings/" .. name .. ".json"
+
+		local data = {
+			objects = {}
+		}
+
+		for idx, option in next, SaveManager.Options do
+			if not self.Parser[option.Type] then continue end
+			if self.Ignore[idx] then continue end
+
+			table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
+		end	
+
+		local success, encoded = pcall(httpService.JSONEncode, httpService, data)
+		if not success then
+			return false, "failed to encode data"
+		end
+
+		writefile(fullPath, encoded)
+		return true
+	end
+
+	function SaveManager:Load(name)
+		if (not name) then
+			return false, "no config file is selected"
+		end
+		
+		local file = self.Folder .. "/settings/" .. name .. ".json"
+		if not isfile(file) then return false, "invalid file" end
+
+		local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
+		if not success then return false, "decode error" end
+
+		for _, option in next, decoded.objects do
+			if self.Parser[option.type] then
+				task.spawn(function() self.Parser[option.type].Load(option.idx, option) end) -- task.spawn() so the config loading wont get stuck.
+			end
+		end
+
+		return true
+	end
+
+	function SaveManager:IgnoreThemeSettings()
+		self:SetIgnoreIndexes({ 
+			"InterfaceTheme", "AcrylicToggle", "TransparentToggle", "MenuKeybind"
+		})
+	end
+
+	function SaveManager:BuildFolderTree()
+		local paths = {
+			self.Folder,
+			self.Folder .. "/settings"
+		}
+
+		for i = 1, #paths do
+			local str = paths[i]
+			if not isfolder(str) then
+				makefolder(str)
+			end
+		end
+	end
+
+	function SaveManager:RefreshConfigList()
+		local list = listfiles(self.Folder .. "/settings")
+
+		local out = {}
+		for i = 1, #list do
+			local file = list[i]
+			if file:sub(-5) == ".json" then
+				local pos = file:find(".json", 1, true)
+				local start = pos
+
+				local char = file:sub(pos, pos)
+				while char ~= "/" and char ~= "\\" and char ~= "" do
+					pos = pos - 1
+					char = file:sub(pos, pos)
+				end
+
+				if char == "/" or char == "\\" then
+					local name = file:sub(pos + 1, start - 1)
+					if name ~= "options" then
+						table.insert(out, name)
+					end
+				end
+			end
+		end
+		
+		return out
+	end
+
+	function SaveManager:SetLibrary(library)
+		self.Library = library
+        self.Options = library.Options
+	end
+
+	function SaveManager:LoadAutoloadConfig()
+		if isfile(self.Folder .. "/settings/autoload.txt") then
+			local name = readfile(self.Folder .. "/settings/autoload.txt")
+
+			local success, err = self:Load(name)
+			if not success then
+				return self.Library:Notify({
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = "Failed to load autoload config: " .. err,
+					Duration = 7
+				})
+			end
+
+			self.Library:Notify({
+				Title = "Interface",
+				Content = "Config loader",
+				SubContent = string.format("Auto loaded config %q", name),
+				Duration = 7
+			})
+		end
+	end
+
+	function SaveManager:BuildConfigSection(tab)
+		assert(self.Library, "Must set SaveManager.Library")
+
+		local section = tab:AddSection("Configuration")
+
+		section:AddInput("SaveManager_ConfigName",    { Title = "Config name" })
+		section:AddDropdown("SaveManager_ConfigList", { Title = "Config list", Values = self:RefreshConfigList(), AllowNull = true })
+
+		section:AddButton({
+            Title = "Create config",
+            Callback = function()
+                local name = SaveManager.Options.SaveManager_ConfigName.Value
+
+                if name:gsub(" ", "") == "" then 
+                    return self.Library:Notify({
+						Title = "Interface",
+						Content = "Config loader",
+						SubContent = "Invalid config name (empty)",
+						Duration = 7
+					})
+                end
+
+                local success, err = self:Save(name)
+                if not success then
+                    return self.Library:Notify({
+						Title = "Interface",
+						Content = "Config loader",
+						SubContent = "Failed to save config: " .. err,
+						Duration = 7
+					})
+                end
+
+				self.Library:Notify({
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = string.format("Created config %q", name),
+					Duration = 7
+				})
+
+                SaveManager.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
+                SaveManager.Options.SaveManager_ConfigList:SetValue(nil)
+            end
+        })
+
+        section:AddButton({Title = "Load config", Callback = function()
+			local name = SaveManager.Options.SaveManager_ConfigList.Value
+
+			local success, err = self:Load(name)
+			if not success then
+				return self.Library:Notify({
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = "Failed to load config: " .. err,
+					Duration = 7
+				})
+			end
+
+			self.Library:Notify({
+				Title = "Interface",
+				Content = "Config loader",
+				SubContent = string.format("Loaded config %q", name),
+				Duration = 7
+			})
+		end})
+
+		section:AddButton({Title = "Overwrite config", Callback = function()
+			local name = SaveManager.Options.SaveManager_ConfigList.Value
+
+			local success, err = self:Save(name)
+			if not success then
+				return self.Library:Notify({
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = "Failed to overwrite config: " .. err,
+					Duration = 7
+				})
+			end
+
+			self.Library:Notify({
+				Title = "Interface",
+				Content = "Config loader",
+				SubContent = string.format("Overwrote config %q", name),
+				Duration = 7
+			})
+		end})
+
+		section:AddButton({Title = "Refresh list", Callback = function()
+			SaveManager.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
+			SaveManager.Options.SaveManager_ConfigList:SetValue(nil)
+		end})
+
+		local AutoloadButton
+		AutoloadButton = section:AddButton({Title = "Set as autoload", Description = "Current autoload config: none", Callback = function()
+			local name = SaveManager.Options.SaveManager_ConfigList.Value
+			writefile(self.Folder .. "/settings/autoload.txt", name)
+			AutoloadButton:SetDesc("Current autoload config: " .. name)
+			self.Library:Notify({
+				Title = "Interface",
+				Content = "Config loader",
+				SubContent = string.format("Set %q to auto load", name),
+				Duration = 7
+			})
+		end})
+
+		if isfile(self.Folder .. "/settings/autoload.txt") then
+			local name = readfile(self.Folder .. "/settings/autoload.txt")
+			AutoloadButton:SetDesc("Current autoload config: " .. name)
+		end
+
+		SaveManager:SetIgnoreIndexes({ "SaveManager_ConfigList", "SaveManager_ConfigName" })
+	end
+
+	SaveManager:BuildFolderTree()
 end
 
-local Window = Fluent:CreateWindow({
-    Title = "WNDS HUB v6.0",
-    SubTitle = "by Raize",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true, 
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
-})
-
--- // --- VARIABLES ---
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-_G.WalkSpeed = 16
-_G.JumpPower = 50
-_G.FlyEnabled = false
-_G.FlySpeed = 50
-_G.EspEnabled = false
-
--- // --- TABS ---
-local Tabs = {
-    Main = Window:AddTab({ Title = "Player", Icon = "user" }),
-    Combat = Window:AddTab({ Title = "Combat", Icon = "target" }),
-    Visual = Window:AddTab({ Title = "Visuals", Icon = "eye" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-}
-
--- // --- NOTIFICATION ---
-Fluent:Notify({
-    Title = "WNDS Hub",
-    Content = "Welcome, " .. LocalPlayer.DisplayName .. "! Exec: " .. GetExecutor(),
-    Duration = 5
-})
-
--- // --- PLAYER TAB ---
-Tabs.Main:AddParagraph({
-    Title = "Movement Modification",
-    Content = "Adjust your character physics here."
-})
-
-local ToggleWS = Tabs.Main:AddToggle("WS_Toggle", {Title = "Enable Speed/Jump", Default = false})
-ToggleWS:OnChanged(function()
-    _G.MovementEnabled = ToggleWS.Value
-end)
-
-Tabs.Main:AddSlider("WS_Slider", {
-    Title = "WalkSpeed",
-    Description = "Adjust your speed",
-    Default = 16, Min = 16, Max = 500, Rounding = 1,
-    Callback = function(Value) _G.WalkSpeed = Value end
-})
-
-Tabs.Main:AddSlider("JP_Slider", {
-    Title = "JumpPower",
-    Description = "Adjust your jump",
-    Default = 50, Min = 50, Max = 1000, Rounding = 1,
-    Callback = function(Value) _G.JumpPower = Value end
-})
-
-local ToggleFly = Tabs.Main:AddToggle("Fly_Toggle", {Title = "Static Flight (WASD + QE)", Default = false})
-ToggleFly:OnChanged(function()
-    _G.FlyEnabled = ToggleFly.Value
-    if _G.FlyEnabled then
-        local Root = LocalPlayer.Character.HumanoidRootPart
-        local BV = Instance.new("BodyVelocity", Root)
-        BV.Name = "WNDS_FlyForce"
-        BV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-        
-        task.spawn(function()
-            while _G.FlyEnabled do
-                local dir = Vector3.new(0,0,0)
-                local cam = workspace.CurrentCamera.CFrame
-                local UIS = game:GetService("UserInputService")
-                if UIS:IsKeyDown("W") then dir += cam.LookVector end
-                if UIS:IsKeyDown("S") then dir -= cam.LookVector end
-                if UIS:IsKeyDown("A") then dir -= cam.RightVector end
-                if UIS:IsKeyDown("D") then dir += cam.RightVector end
-                if UIS:IsKeyDown("E") then dir += Vector3.new(0,1,0) end
-                if UIS:IsKeyDown("Q") then dir -= Vector3.new(0,1,0) end
-                BV.Velocity = (dir.Magnitude > 0) and (dir.Unit * _G.FlySpeed) or Vector3.new(0,0,0)
-                task.wait()
-            end
-            BV:Destroy()
-        end)
-    end
-end)
-
--- // --- COMBAT TAB ---
-local ToggleAim = Tabs.Combat:AddToggle("Aim_Toggle", {Title = "Enable Aimbot", Default = false})
--- (Logic Aimbot ditaruh di RenderStepped bawah)
-
--- // --- VISUAL TAB ---
-local ToggleEsp = Tabs.Visual:AddToggle("Esp_Toggle", {Title = "Player ESP", Default = false})
-ToggleEsp:OnChanged(function() _G.EspEnabled = ToggleEsp.Value end)
-
--- // --- CORE LOOP (60FPS+) ---
-game:GetService("RunService").RenderStepped:Connect(function()
-    local Char = LocalPlayer.Character
-    local Hum = Char and Char:FindFirstChildOfClass("Humanoid")
-    if Hum and _G.MovementEnabled then
-        Hum.WalkSpeed = _G.WalkSpeed
-        if Hum.UseJumpPower then Hum.JumpPower = _G.JumpPower else Hum.JumpHeight = _G.JumpPower/7.2 end
-    end
-end)
-
--- // --- FINISH ---
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({})
-InterfaceManager:SetFolder("WNDSHub")
-SaveManager:SetFolder("WNDSHub/configs")
-
-Window:SelectTab(1)
-Fluent:Notify({
-    Title = "WNDS Hub",
-    Content = "Script fully loaded with Fluent UI!",
-    Duration = 5
-})
+return SaveManager
