@@ -1,4 +1,4 @@
--- // WNDS HUB - VISUAL MODULE (STABLE VERSION)
+-- // WNDS HUB - VISUAL MODULE (STABLE v2.0)
 -- // Developer: Raize
 
 local VisualTab = _G.WNDS_Window:AddTab({ Title = "Visuals", Icon = "eye" })
@@ -6,8 +6,23 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
+local Fluent = _G.WNDS_Fluent
 
--- // FUNGSI PROTEKSI: Pastikan input selalu jadi angka (Mencegah Error Argument #3)
+-- // 1. ERROR INTERCEPTOR HELPER
+-- Fungsi untuk menjalankan kode dan mengirim notifikasi jika gagal
+local function SafeExecute(func, context)
+    local success, err = pcall(func)
+    if not success then
+        Fluent:Notify({
+            Title = "Visual System Alert",
+            Content = "Error in " .. context .. ": " .. tostring(err):sub(1, 40),
+            Duration = 5
+        })
+        warn("[WNDS DEBUG] Handled: " .. tostring(err))
+    end
+end
+
+-- // 2. FUNGSI PROTEKSI ANGKA
 local function GetSafeNumber(val, default)
     if type(val) == "number" then return val end
     if type(val) == "string" then return tonumber(val) or default end
@@ -31,13 +46,13 @@ local HitboxSec = VisualTab:AddSection("Hitbox Settings")
 HitboxSec:AddToggle("he", {Title = "Hitbox Expander", Default = false}):OnChanged(function(v) _G.WNDS_HEnabled = v end)
 HitboxSec:AddSlider("hs", {Title = "Hitbox Scale", Default = 2, Min = 2, Max = 25, Rounding = 1, Callback = function(v) _G.WNDS_HSize = v end})
 
--- // CORE VISUAL LOGIC (ESP, Tracers, Chams)
+-- // CORE VISUAL LOGIC
 local function CreateESP(P)
     local l1, l2, l3, l4 = Drawing.new("Line"), Drawing.new("Line"), Drawing.new("Line"), Drawing.new("Line")
     local tracer = Drawing.new("Line")
 
     RunService.RenderStepped:Connect(function()
-        pcall(function() -- Bungkus pcall agar RenderStepped tidak crash
+        SafeExecute(function() -- Menggunakan SafeExecute untuk ESP
             if P.Character and P.Character:FindFirstChild("HumanoidRootPart") and P ~= LocalPlayer then
                 local root = P.Character.HumanoidRootPart
                 local char = P.Character
@@ -87,41 +102,38 @@ local function CreateESP(P)
             else
                 for _,l in pairs({l1,l2,l3,l4,tracer}) do l.Visible = false end
             end
-        end)
+        end, "ESP Engine")
     end)
 end
 
--- // HITBOX LOOP - BRUTE FORCE PROTECTION (Paling Sering Bikin Error)
+-- // HITBOX LOOP - WITH ERROR INTERCEPTOR
 task.spawn(function()
     while task.wait(0.8) do
-        local isEnabled = _G.WNDS_HEnabled
-        local safeSize = GetSafeNumber(_G.WNDS_HSize, 2)
+        SafeExecute(function() -- Menggunakan SafeExecute untuk Hitbox
+            local isEnabled = _G.WNDS_HEnabled
+            local safeSize = GetSafeNumber(_G.WNDS_HSize, 2)
 
-        if isEnabled then
-            for _, p in pairs(Players:GetPlayers()) do
-                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                    local hrp = p.Character.HumanoidRootPart
-                    pcall(function()
+            if isEnabled then
+                for _, p in pairs(Players:GetPlayers()) do
+                    if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                        local hrp = p.Character.HumanoidRootPart
                         hrp.Size = Vector3.new(safeSize, safeSize, safeSize)
                         hrp.Transparency = 0.7
                         hrp.CanCollide = false
-                    end)
+                    end
                 end
-            end
-        else
-            -- RESET JIKA OFF
-            for _, p in pairs(Players:GetPlayers()) do
-                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                    local hrp = p.Character.HumanoidRootPart
-                    if hrp.Size.X ~= 2 then
-                        pcall(function()
+            else
+                for _, p in pairs(Players:GetPlayers()) do
+                    if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                        local hrp = p.Character.HumanoidRootPart
+                        if hrp.Size.X ~= 2 then
                             hrp.Size = Vector3.new(2, 2, 1)
                             hrp.Transparency = 1
-                        end)
+                        end
                     end
                 end
             end
-        end
+        end, "Hitbox Module")
     end
 end)
 
@@ -129,4 +141,4 @@ end)
 for _,v in pairs(Players:GetPlayers()) do CreateESP(v) end
 Players.PlayerAdded:Connect(CreateESP)
 
-print("[WNDS] Visual Module Stable Loaded.")
+print("[WNDS] Visual Module v2.0 Stable Loaded.")
