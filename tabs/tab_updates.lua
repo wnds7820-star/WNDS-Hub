@@ -18,8 +18,32 @@ StatusSec:AddParagraph({
     Content = "Status: Online & Undetected\nLast Sync: " .. os.date("%d %B, %Y")
 })
 
--- // SECTION: UPDATE TERBARU (V2.0.0) - CURRENT VERSION
-local UpdateV2 = UpdatesTab:AddSection("Version: 2.0.0 [LATEST]")
+-- // SECTION: UPDATE TERBARU (V1.5.0)
+local UpdateV15 = UpdatesTab:AddSection("Version: 1.5.0 [NEW]")
+
+UpdateV21:AddParagraph({
+    Title = "Rencana Fitur Selanjutnya",
+    Content = "• Cloud Config System (Database)\n" ..
+              "• Custom Theme Engine\n" ..
+              "• Auto-Farm Level (Experimental)\n" ..
+              "• Speed Bypass Anti-Cheat"
+})
+
+-- // SECTION: UPDATE TERBARU (V1.4.0) 
+local UpdateV14 = UpdatesTab:AddSection("Version: 1.4.0")
+
+UpdateV2:AddParagraph({
+Title = "Rencana Update v3.0 (God Tier)",
+    Content = "• Silent Aim & FOV Customization\n" ..
+              "• Chams & Tracer Visuals (Wallhack)\n" ..
+              "• Tween Fly & Experimental Noclip\n" ..
+              "• Custom Theme Engine (User Colors)\n" ..
+              "• Cloud Config sharing system\n" ..
+              "• Auto-Farm logic for Top 5 Roblox Games"
+})
+
+-- // SECTION: UPDATE TERBARU (V1.3.0) - CURRENT VERSION
+local UpdateV13 = UpdatesTab:AddSection("Version: 1.3.0")
 
 UpdateV2:AddParagraph({
     Title = "The Grand Migration (March 29, 2026)",
