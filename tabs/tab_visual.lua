@@ -9,7 +9,6 @@ local LocalPlayer = Players.LocalPlayer
 local Fluent = _G.WNDS_Fluent
 
 -- // 1. ERROR INTERCEPTOR HELPER
--- Fungsi untuk menjalankan kode dan mengirim notifikasi jika gagal
 local function SafeExecute(func, context)
     local success, err = pcall(func)
     if not success then
@@ -34,6 +33,7 @@ end
 _G.WNDS_BodyESP = false
 _G.WNDS_HEnabled = false
 _G.WNDS_HSize = 2
+_G.WNDS_HTeamCheck = true
 _G.WNDS_Chams = false
 _G.WNDS_Tracers = false
 
@@ -44,15 +44,16 @@ VisualTab:AddToggle("tr", {Title = "Tracer Lines (Snaplines)", Default = false})
 
 local HitboxSec = VisualTab:AddSection("Hitbox Settings")
 HitboxSec:AddToggle("he", {Title = "Hitbox Expander", Default = false}):OnChanged(function(v) _G.WNDS_HEnabled = v end)
+HitboxSec:AddToggle("htc", {Title = "Hitbox Team Check", Default = true}):OnChanged(function(v) _G.WNDS_HTeamCheck = v end)
 HitboxSec:AddSlider("hs", {Title = "Hitbox Scale", Default = 2, Min = 2, Max = 25, Rounding = 1, Callback = function(v) _G.WNDS_HSize = v end})
 
--- // CORE VISUAL LOGIC
+-- // CORE VISUAL LOGIC (ESP, Tracers, Chams)
 local function CreateESP(P)
     local l1, l2, l3, l4 = Drawing.new("Line"), Drawing.new("Line"), Drawing.new("Line"), Drawing.new("Line")
     local tracer = Drawing.new("Line")
 
     RunService.RenderStepped:Connect(function()
-        SafeExecute(function() -- Menggunakan SafeExecute untuk ESP
+        SafeExecute(function()
             if P.Character and P.Character:FindFirstChild("HumanoidRootPart") and P ~= LocalPlayer then
                 local root = P.Character.HumanoidRootPart
                 local char = P.Character
@@ -106,29 +107,44 @@ local function CreateESP(P)
     end)
 end
 
--- // HITBOX LOOP - WITH ERROR INTERCEPTOR
+-- // HITBOX LOOP - ADVANCED REINFORCED
 task.spawn(function()
-    while task.wait(0.8) do
-        SafeExecute(function() -- Menggunakan SafeExecute untuk Hitbox
+    while task.wait(0.5) do -- Delay lebih cepat untuk akurasi tinggi
+        SafeExecute(function()
             local isEnabled = _G.WNDS_HEnabled
             local safeSize = GetSafeNumber(_G.WNDS_HSize, 2)
 
-            if isEnabled then
-                for _, p in pairs(Players:GetPlayers()) do
-                    if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                        local hrp = p.Character.HumanoidRootPart
-                        hrp.Size = Vector3.new(safeSize, safeSize, safeSize)
-                        hrp.Transparency = 0.7
-                        hrp.CanCollide = false
-                    end
-                end
-            else
-                for _, p in pairs(Players:GetPlayers()) do
-                    if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                        local hrp = p.Character.HumanoidRootPart
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = p.Character.HumanoidRootPart
+                    
+                    if isEnabled then
+                        -- Team Check Logic
+                        if _G.WNDS_HTeamCheck and p.Team == LocalPlayer.Team then
+                            -- Reset jika teman satu tim
+                            if hrp.Size.X ~= 2 then
+                                hrp.Size = Vector3.new(2, 2, 1)
+                                hrp.Transparency = 1
+                            end
+                        else
+                            -- Apply Advanced Hitbox
+                            hrp.Size = Vector3.new(safeSize, safeSize, safeSize)
+                            hrp.Transparency = 0.7
+                            hrp.BrickColor = BrickColor.new("Really red")
+                            hrp.Material = Enum.Material.Neon
+                            hrp.CanCollide = false
+                            
+                            -- Physics Fix: Menjaga karakter agar tidak terpental/jatuh
+                            hrp.Velocity = Vector3.new(0, 0, 0)
+                            hrp.RotVelocity = Vector3.new(0, 0, 0)
+                        end
+                    else
+                        -- Reset Global jika Fitur OFF
                         if hrp.Size.X ~= 2 then
                             hrp.Size = Vector3.new(2, 2, 1)
                             hrp.Transparency = 1
+                            hrp.BrickColor = BrickColor.new("Medium stone grey")
+                            hrp.Material = Enum.Material.Plastic
                         end
                     end
                 end
@@ -141,4 +157,4 @@ end)
 for _,v in pairs(Players:GetPlayers()) do CreateESP(v) end
 Players.PlayerAdded:Connect(CreateESP)
 
-print("[WNDS] Visual Module v2.0 Stable Loaded.")
+print("[WNDS] Visual Module v2.0 + Hitbox Expander Stable Loaded.")
