@@ -41,12 +41,15 @@ GameSec:AddButton({
     end
 })
 
--- // SECTION: CHANGELOG (What's New?)
+-- // SECTION: CHANGELOG (Automated from Updates Tab)
 local NewsSec = HomeTab:AddSection("Update Log")
 
+-- Mengambil data dari variabel global, jika kosong pakai teks default
+local latestText = _G.WNDS_Latest_Update or "No update info available."
+
 NewsSec:AddParagraph({
-    Title = "Latest Improvements",
-    Content = "• Fixed 'SetContent' Missing Method Error\n• Optimized Precise Body ESP\n• Added Smooth Aimbot (Lerp System)\n• Fixed Slider Rounding Issues\n• Improved Global Loading System"
+    Title = "Latest Improvements (v1.5.0)",
+    Content = latestText
 })
 
 -- // SECTION: COMMUNITY & CREDITS
