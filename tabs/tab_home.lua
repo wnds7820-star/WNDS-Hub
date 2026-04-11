@@ -41,15 +41,16 @@ GameSec:AddButton({
     end
 })
 
--- // SECTION: CHANGELOG (Automated from Updates Tab)
+-- // SECTION: UPDATE LOG (Otomatis)
 local NewsSec = HomeTab:AddSection("Update Log")
 
--- Mengambil data dari variabel global, jika kosong pakai teks default
-local latestText = _G.WNDS_Latest_Update or "No update info available."
+-- Mengambil data dari variabel yang kita buat di script Updates
+local displayVer = _G.WNDS_Latest_Ver or "Unknown"
+local displayLog = _G.WNDS_Latest_Log or "No log data."
 
 NewsSec:AddParagraph({
-    Title = "Latest Improvements (v1.5.0)",
-    Content = latestText
+    Title = "Latest Version: " .. displayVer,
+    Content = displayLog
 })
 
 -- // SECTION: COMMUNITY & CREDITS

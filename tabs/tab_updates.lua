@@ -1,8 +1,8 @@
 -- // WNDS HUB - OFFICIAL CHANGELOG SYSTEM
 -- // Developer: Made for you
 -- // Version: [LATEST]
--- Simpan info update terbaru di sini agar bisa dipanggil tab Home
-_G.WNDS_Latest_Update = "• Bug Fixes\n• Cloud Config System (Database)\n• Custom Theme Engine\n• Auto-Farm Level (Experimental)"
+_G.WNDS_Latest_Ver = "1.6.0 [NEW]"
+_G.WNDS_Latest_Log = "• Bug Fixes\n• UI Update"
 
 local Window = _G.WNDS_Window
 local Fluent = _G.WNDS_Fluent
