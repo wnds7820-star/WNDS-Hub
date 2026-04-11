@@ -24,12 +24,12 @@ if Window then
     local UpdateV16 = UpdatesTab:AddSection("Version: 1.6.0 [NEW]")
 
     UpdateV16:AddParagraph({ 
-        Title = "Rencana Fitur Selanjutnya",
+        Title = "Update v6.0",
         Content = "• Bug Fixes\n• UI Update"
     })
 
     -- // SECTION: UPDATE TERBARU (V1.5.0)
-    local UpdateV15 = UpdatesTab:AddSection("Version: 1.5.0 [NEW]")
+    local UpdateV15 = UpdatesTab:AddSection("Version: 1.5.0")
 
     UpdateV15:AddParagraph({ 
         Title = "Update v5.0",
