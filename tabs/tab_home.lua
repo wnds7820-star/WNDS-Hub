@@ -45,8 +45,8 @@ GameSec:AddButton({
 local NewsSec = HomeTab:AddSection("Update Log")
 
 -- Mengambil data dari variabel yang kita buat di script Updates
-local displayVer = _G.WNDS_Latest_Ver or "Unknown"
-local displayLog = _G.WNDS_Latest_Log or "No log data."
+local displayVer = _G.WNDS_Latest_Ver or "1.6.0 [NEW]"
+local displayLog = _G.WNDS_Latest_Log or "• Bug Fixes\n• UI Update."
 
 NewsSec:AddParagraph({
     Title = "Latest Version: " .. displayVer,
