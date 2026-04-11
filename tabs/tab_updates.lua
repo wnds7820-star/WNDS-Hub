@@ -18,12 +18,20 @@ StatusSec:AddParagraph({
     Content = "Status: Online & Undetected\nLast Sync: " .. os.date("%d %B, %Y")
 })
 
--- // SECTION: UPDATE TERBARU (V1.6.0)
-local UpdateV15 = UpdatesTab:AddSection("Version: 1.5.0 [NEW]")
+-- // SECTION: UPDATE TERBARU (V1.7.0)
+local UpdateV17 = UpdatesTab:AddSection("Version: 1.7.0 [NEW]")
 
 UpdateV15:AddParagraph({ -- FIX: Harus pakai UpdateV15
     Title = "Rencana Fitur Selanjutnya",
     Content = "• Bug Fixes\n" ..
+
+-- // SECTION: UPDATE TERBARU (V1.6.0)
+local UpdateV16 = UpdatesTab:AddSection("Version: 1.6.0 [NEW]")
+
+UpdateV16:AddParagraph({ -- FIX: Harus pakai UpdateV16
+    Title = "Rencana Fitur Selanjutnya",
+    Content = "• Bug Fixes\n" ..
+})
 
 -- // SECTION: UPDATE TERBARU (V1.5.0)
 local UpdateV15 = UpdatesTab:AddSection("Version: 1.5.0 [NEW]")
