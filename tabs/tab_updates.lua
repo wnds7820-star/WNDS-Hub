@@ -20,11 +20,19 @@ if Window then
         Content = "Status: Online & Undetected\nLast Sync: " .. os.date("%d %B, %Y")
     })
 
+    -- // SECTION: UPDATE TERBARU (V1.6.0)
+    local UpdateV16 = UpdatesTab:AddSection("Version: 1.6.0 [NEW]")
+
+    UpdateV16:AddParagraph({ 
+        Title = "Rencana Fitur Selanjutnya",
+        Content = "• Bug Fixes\n• UI Update"
+    })
+
     -- // SECTION: UPDATE TERBARU (V1.5.0)
     local UpdateV15 = UpdatesTab:AddSection("Version: 1.5.0 [NEW]")
 
     UpdateV15:AddParagraph({ 
-        Title = "Rencana Fitur Selanjutnya",
+        Title = "Update v5.0",
         Content = "• Bug Fixes\n• Cloud Config System (Database)\n• Custom Theme Engine\n• Auto-Farm Level (Experimental)\n• Speed Bypass Anti-Cheat"
     })
 
@@ -32,7 +40,7 @@ if Window then
     local UpdateV14 = UpdatesTab:AddSection("Version: 1.4.0")
 
     UpdateV14:AddParagraph({ 
-        Title = "Rencana Update v3.0 (God Tier)",
+        Title = "Update v4.0",
         Content = "• Silent Aim & FOV Customization\n• Chams & Tracer Visuals (Wallhack)\n• Tween Fly & Experimental Noclip\n• Custom Theme Engine (User Colors)\n• Cloud Config sharing system\n• Auto-Farm logic for Top 5 Roblox Games"
     })
 
@@ -40,7 +48,7 @@ if Window then
     local UpdateV13 = UpdatesTab:AddSection("Version: 1.3.0")
 
     UpdateV13:AddParagraph({ 
-        Title = "The Grand Migration (March 29, 2026)",
+        Title = "Update v3.0",
         Content = "• Complete UI Overhaul: Migrated to Fluent UI Framework.\n• Added World Tab: FPS Booster, Lighting & Gravity Control.\n• Added Misc Tab: Anti-AFK, Rejoin & Server Hop System.\n• Added Settings Tab: Auto-Config Save/Load (SaveManager).\n• New Security: 3-Tier Bootloader (Bootstrapper > Loader > Main).\n• Fix: Infinite Jump Toggle (On/Off Logic)."
     })
 
